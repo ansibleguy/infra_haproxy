@@ -2,8 +2,8 @@
 
 - name: HAProxy | Config | Globals/Defaults
   ansible.builtin.template:
-    src: 'templates/etc/haproxy/haproxy.conf.j2'
-    dest: '/etc/haproxy/haproxy.conf'
+    src: 'templates/etc/haproxy/haproxy.cfg.j2'
+    dest: '/etc/haproxy/haproxy.cfg'
     owner: 'root'
     group: 'haproxy'
     mode: 0640
@@ -11,8 +11,8 @@
 
 - name: HAProxy | Config | Backends/Frontends/Stats
   ansible.builtin.template:
-    src: "templates/etc/haproxy/conf.d/{{ item }}.conf.j2"
-    dest: "/etc/haproxy/conf.d/{{ item }}.conf"
+    src: "templates/etc/haproxy/conf.d/{{ item }}.cfg.j2"
+    dest: "/etc/haproxy/conf.d/{{ item }}.cfg"
     owner: 'root'
     group: 'haproxy'
     mode: 0640
