@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+global
+    daemon
+    user {{ HAPROXY_HC.user }}
+    group {{ HAPROXY_HC.group }}
+
+{% for key, value in HAPROXY_CONFIG.global.items() %}
+{%   if value | default(none, true) is none %}
+{%   elif value | is_string %}
+    {{ key }} {{ value }}
+{%   else %}
+{%     for value_entry in value | ensure_list %}
+    {{ key }} {{ value_entry }}
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+
+defaults
+{% for key, value in HAPROXY_CONFIG.defaults.items() %}
+{%   if value | default(none, true) is none %}
+{%   elif value | is_string %}
+    {{ key }} {{ value }}
+{%   else %}
+{%     for value_entry in value | ensure_list %}
+    {{ key }} {{ value_entry }}
+{%     endfor %}
+{%   endif %}
+{% endfor %}

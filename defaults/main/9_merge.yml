@@ -1,0 +1,3 @@
+---
+
+HAPROXY_CONFIG: "{{ defaults_haproxy | combine(haproxy, recursive=true, list_merge=prepend) }}"

@@ -1,0 +1,11 @@
+---
+
+HAPROXY_HC:
+  valid_versions: ['2.6', '2.7', '2.8', '2.9']
+  path:
+    config: '/etc/haproxy/conf.d'
+    acme: '/etc/ssl/haproxy_acme'
+
+  user: 'haproxy'
+  group: 'haproxy'
+

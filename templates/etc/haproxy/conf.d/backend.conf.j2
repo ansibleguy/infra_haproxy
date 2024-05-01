@@ -1,0 +1,31 @@
+# {{ ansible_managed }}
+
+{% for name, cnf in HAPROXY_CONFIG.backends.items() %}
+backend {{ name }}
+    mode {{ cnf.mode }}
+    balance {{ cnf.balance }}
+
+{%  if cnf.check | bool and mode == 'http' %}
+    option httpchk
+{%    if cnf.check_uri | default(none, true) is not none %}
+    http-check send meth {{ cnf.check_method }} uri {{ cnf.check_uri }}
+{%    endif %}
+{%    if cnf.check_expect | default(none, true) is not none %}
+    http-check expect {{ cnf.check_expect }}
+{%    endif %}
+{%  endif %}
+
+{%  for section, lines in cnf.lines.items() %}
+    # SECTION: {{ section }}
+{%    for line in lines | ensure_list %}
+    {{ line }}
+{%    endfor %}
+
+
+{%  endfor %}
+
+{%  for server in cnf.servers | ensure_list %}
+    server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}
+{%  endfor %}
+
+{% endfor %}

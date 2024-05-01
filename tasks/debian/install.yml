@@ -1,0 +1,76 @@
+---
+
+- name: HAProxy | Install | Dependencies
+  ansible.builtin.apt:
+    pkg: ['gpg', 'curl']
+    state: present
+
+# https://haproxy.debian.net
+- name: HAProxy | Install | Adding repository key
+  ansible.builtin.shell: |
+    curl https://haproxy.debian.net/bernat.debian.org.gpg |
+    gpg --dearmor > /usr/share/keyrings/haproxy.debian.net.gpg
+  changed_when: false
+
+- name: HAProxy | Install | Adding repository
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      deb [signed-by=/usr/share/keyrings/haproxy.debian.net.gpg] https://haproxy.debian.net bookworm-backports-{{ HAPROXY_CONFIG.version}} main
+    dest: '/etc/apt/sources.list.d/haproxy-community.list'
+    mode: 0644
+
+- name: HAProxy | Install
+  ansible.builtin.apt:
+    pkg: "haproxy={{ HAPROXY_CONFIG.version}}*"
+    state: present
+    update_cache: true
+
+- name: HAProxy | Install | Create config directory
+  ansible.builtin.file:
+    path: "{{ HAPROXY_HC.path.config }}"
+    state: directory
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750
+
+- name: HAProxy | Install | Create service-override directory
+  ansible.builtin.file:
+    path: '/etc/systemd/system/haproxy.service.d'
+    state: directory
+    owner: 'root'
+    group: 'root'
+    mode: 0755
+
+# validate config before start/reload
+#   log errors and keep us from killing the active process with invalid config
+# add conf.d as config source
+- name: HAProxy | Install | Create service-override
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+
+      [Unit]
+      Documentation=https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/
+      Documentation=https://github.com/ansibleguy/infra_haproxy
+
+      [Service]
+      ExecStartPre=/usr/sbin/haproxy -c -f $CONFIG -f {{ HAPROXY_HC.path.config }}/
+      ExecStart=
+      ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG -f {{ HAPROXY_HC.path.config }}/ -p $PIDFILE $EXTRAOPTS
+
+      ExecReload=
+      ExecReload=/usr/sbin/haproxy -c -f $CONFIG -f {{ HAPROXY_HC.path.config }}/
+      ExecReload=/bin/kill -USR2 $MAINPID
+
+    dest: '/etc/systemd/system/haproxy.service.d/override.conf'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  notify: haproxy-restart
+  register: hap_svc_ovr
+
+- name: HAProxy | Install | Systemd Daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: hap_svc_ovr.changed

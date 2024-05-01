@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+
+{% for name, cnf in HAPROXY_CONFIG.frontends.items() %}
+backend {{ name }}
+    mode {{ cnf.mode }}
+{%   for bind in cnf.bind | ensure_list %}
+{%     if cnf.acme | bool %}
+    bind {{ bind | regex_replace('ssl$', 'ssl crt ' + HAPROXY_HC.path.acme) }}
+{%     else %}
+    bind {{ bind }}
+{%     endif %}
+{%   endfor %}
+
+{%  if cnf.mode == 'http' and cnf.ssl_redirect | bool %}
+    http-request redirect scheme https unless { ssl_fc }
+{%  endif %}
+
+{%  for section, lines in cnf.lines.items() %}
+    # SECTION: {{ section }}
+{%    for line in lines | ensure_list %}
+    {{ line }}
+{%    endfor %}
+
+
+{%  endfor %}
+
+
+{%  for be_name, hostnames in cnf.backend_map.items() %}
+    use_backend {{ be_name }} if { req.hdr(host) -i {{ (hostnames | ensure_list).join(' ') }} }
+{%  endfor %}
+
+{%  if cnf.default_backend | default(none, true) is not none %}
+    default_backend {{ cnf.default_backend }}
+{%  endif %}
+
+{% endfor %}

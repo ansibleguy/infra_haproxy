@@ -1,0 +1,9 @@
+---
+
+- name: HAProxy | Certificates | Create ACME directory
+  ansible.builtin.file:
+    path: "{{ HAPROXY_HC.path.acme }}"
+    state: directory
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750

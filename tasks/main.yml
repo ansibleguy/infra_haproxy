@@ -1,0 +1,12 @@
+---
+
+- name: HAProxy | Checking config
+  ansible.builtin.assert:
+    that:
+      - haproxy is defined
+      - HAPROXY_CONFIG.version in HAPROXY_HC.valid_versions
+  tags: always
+
+- name: HAProxy | Processing debian config
+  ansible.builtin.import_tasks: debian/main.yml
+  when: "ansible_distribution|lower in ['debian', 'ubuntu']"

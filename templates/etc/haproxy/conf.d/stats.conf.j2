@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+{% if HAPROXY_CONFIG.stats.http | bool %}
+frontend stats
+    mode http
+    bind {{ HAPROXY_CONFIG.stats.bind }}
+    stats enable
+    stats uri /stats
+    stats refresh {{ HAPROXY_CONFIG.stats.refresh }}
+    stats realm {{ HAPROXY_CONFIG.stats.realm | replace(' ', '\ ') }}
+
+{%   if HAPROXY_CONFIG.stats.admin | bool %}
+    stats admin{% if HAPROXY_CONFIG.stats.admin_if | default(none, true) is not none %} if {{ HAPROXY_CONFIG.stats.admin_if }}{% endif %}
+{%   endif %}
+
+{%   if HAPROXY_CONFIG.stats.pwd | default(none, true) is not none %}
+    stats auth {{ HAPROXY_CONFIG.stats.user }}:{{ HAPROXY_CONFIG.stats.pwd }}
+{%   endif %}
+
+{% endif %}

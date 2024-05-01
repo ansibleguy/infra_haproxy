@@ -1,0 +1,23 @@
+---
+
+- name: HAProxy | Config | Globals/Defaults
+  ansible.builtin.template:
+    src: 'templates/etc/haproxy/haproxy.conf.j2'
+    dest: '/etc/haproxy/haproxy.conf'
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0640
+  notify: haproxy-reload
+
+- name: HAProxy | Config | Backends/Frontends/Stats
+  ansible.builtin.template:
+    src: "templates/etc/haproxy/conf.d/{{ item }}.conf.j2"
+    dest: "/etc/haproxy/conf.d/{{ item }}.conf"
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0640
+  loop:
+    - 'frontend'
+    - 'backend'
+    - 'stats'
+  notify: haproxy-reload
