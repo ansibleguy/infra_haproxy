@@ -18,14 +18,21 @@ backend {{ name }}
 {%    endif %}
 {%  endif %}
 
-{%  for section, lines in cnf.lines.items() %}
+{%  if cnf.lines | is_dict %}
+{%    for section, lines in cnf.lines.items() %}
     # SECTION: {{ section }}
-{%    for line in lines | ensure_list %}
+{%      for line in lines | ensure_list %}
+    {{ line }}
+{%      endfor %}
+
+{%    endfor %}
+{%  else %}
+    # SECTION: default
+{%    for line in cnf.lines | ensure_list %}
     {{ line }}
 {%    endfor %}
 
-
-{%  endfor %}
+{%  endif %}
 
 {%  for server in cnf.servers | ensure_list %}
     server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}

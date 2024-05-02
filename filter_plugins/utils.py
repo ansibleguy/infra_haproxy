@@ -4,6 +4,7 @@ class FilterModule(object):
         return {
             "ensure_list": self.ensure_list,
             "is_string": self.is_string,
+            "is_dict": self.is_dict,
         }
 
     @staticmethod
@@ -17,3 +18,7 @@ class FilterModule(object):
     @staticmethod
     def is_string(data) -> bool:
         return isinstance(data, str)
+
+    @staticmethod
+    def is_dict(data) -> bool:
+        return isinstance(data, dict)

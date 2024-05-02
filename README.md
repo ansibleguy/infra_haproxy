@@ -137,8 +137,7 @@ haproxy:
       
 
     be_fallback:
-      lines:
-        default: 'http-request redirect code 301 location https://github.com/ansibleguy'
+      lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
 ```
 
 Define the config as needed:
@@ -146,12 +145,8 @@ Define the config as needed:
 ```yaml
 haproxy:
   version: '2.8'
-  
-  # enable stats http page
-  stats:
-    http: true
-    bind: '127.0.0.1:8404'
 
+  # FRONTENDS
   frontends:
     fe_web:
       bind: ['[::]:80 v4v6', '[::]:443 v4v6 ssl']
@@ -193,6 +188,7 @@ haproxy:
 
       default_backend: 'be_fallback'
 
+  # BACKENDS
   backends:
     be_app01:
       servers:
@@ -218,6 +214,11 @@ haproxy:
     be_fallback:
       lines:
         default: 'http-request redirect code 301 location https://github.com/ansibleguy'
+
+  # GENERAL
+  stats:  # enable stats http page
+    http: true
+    bind: '127.0.0.1:8404'
 
   geoip:
     enable: true

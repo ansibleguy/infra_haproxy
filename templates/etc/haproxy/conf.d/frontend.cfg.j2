@@ -27,15 +27,21 @@ frontend {{ name }}
     http-request capture req.fhdr(User-Agent) len 200
 {%   endif %}
 
-{%  for section, lines in cnf.lines.items() %}
+{%  if cnf.lines | is_dict %}
+{%    for section, lines in cnf.lines.items() %}
     # SECTION: {{ section }}
-{%    for line in lines | ensure_list %}
+{%      for line in lines | ensure_list %}
+    {{ line }}
+{%      endfor %}
+
+{%    endfor %}
+{%  else %}
+    # SECTION: default
+{%    for line in cnf.lines | ensure_list %}
     {{ line }}
 {%    endfor %}
 
-
-{%  endfor %}
-
+{%  endif %}
 
 {%  for be_name, be_cnf_user in cnf.route.items() %}
 {%    set be_cnf = defaults_frontend_route | combine(be_cnf_user, recursive=true) %}
