@@ -59,6 +59,7 @@ ansible-galaxy install -r requirements.yml
     * Frontend
       * Redirect non SSL traffic to SSL if in HTTP mode
       * Logging User-Agent
+      * Setting basic security-headers
     * Backend
       * Basic Check (*httpchk if in http mode*)
 

@@ -66,6 +66,7 @@ defaults_frontend:
   # ssl with custom cert: ':443 ssl crt /etc/ssl/haproxy/site.pem'
   acme: false
   ssl_redirect: true
+  security_headers: true
   log:
     user_agent: true
 
@@ -87,7 +88,18 @@ defaults_frontend:
   #     filter_ip: ['10.0.0.0/8']
   #     filter_not_ip: []
 
+  headers:  # you might want to set 'security_headers' to false if you want to control those headers; see below for defaults
+    request: {}
+    response: {}
+
   default_backend:
+
+defaults_security_headers:
+  Strict-Transport-Security: 'max-age=16000000; includeSubDomains; preload;'
+  X-Frame-Options: 'DENY'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+  X-Content-Type-Options: 'nosniff'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+  X-Permitted-Cross-Domain-Policies: 'none'
+  X-XSS-Protection: '1; mode=block'
 
 defaults_frontend_route:
   domains: []

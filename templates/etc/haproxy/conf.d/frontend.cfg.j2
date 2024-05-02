@@ -14,13 +14,19 @@ frontend {{ name }}
 {%   endfor %}
 
 {%   if cnf.mode == 'http' %}
-{%     if cnf.ssl_redirect | bool %}
-    http-request redirect scheme https unless { ssl_fc }
+{%     if cnf.ssl_redirect | bool and 'ssl' in cnf.bind.join('-') %}
+    http-request redirect scheme https code 301 unless { ssl_fc }
 {%     endif %}
 {%   endif %}
 
 {%   if cnf.geoip.enable | bool %}
 {% include "inc/geoip.j2" %}
+{%   endif %}
+
+{%   if cnf.security_headers | bool %}
+{%     for header, value in defaults_security_headers.items() %}
+    http-response set-header {{ header }} "{{ value }}"
+{%     endfor %}
 {%   endif %}
 
 {%   if cnf.log.user_agent | bool %}
