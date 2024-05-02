@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+[Unit]
+Description=HAProxy GeoIP Update Service
+Documentation=https://github.com/ansibleguy/infra_haproxy
+
+[Service]
+Type=oneshot
+ExecStart={{ HAPROXY_HC.path.geoip_update_script }}
+
+User={{ HAPROXY_HC.user_geoip }}
+Group={{ HAPROXY_HC.user_geoip }}
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=haproxy-geoip-update
+
+[Install]
+WantedBy=multi-user.target

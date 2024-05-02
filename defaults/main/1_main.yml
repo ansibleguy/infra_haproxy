@@ -2,6 +2,7 @@
 
 no_prompts: false
 debug: false
+force_update: false
 
 # default config => is overwritten by provided config
 defaults_haproxy:
@@ -19,6 +20,12 @@ defaults_haproxy:
     user: 'haproxy'
     pwd: 'monitor'
     realm: 'Authorized Personal Only'
+
+  geoip:
+    enable: false
+    manage_db: true
+    provider: 'ipinfo'
+    token:
 
   global:
     log:
@@ -59,13 +66,37 @@ defaults_frontend:
   # ssl with custom cert: ':443 ssl crt /etc/ssl/haproxy/site.pem'
   acme: false
   ssl_redirect: true
+  log:
+    user_agent: true
+
+  geoip:
+    enable: false
+    country: true
+    asn: true
+    asn_name: false
 
   lines: {}  # raw config lines to add - section to lines mapping to make resulting config human-readable
 
-  backend_map: {}  # hostname to backend mapping
-  #  backend_name: ['hostname1', 'hostname2']
+  route: {}
+  #  backend_name:
+  #     domains: ['hostname1', 'hostname2']
+  #     filter_country: ['AT', 'DE', 'CH']
+  #     filter_not_country: []
+  #     filter_asn: [13335]
+  #     filter_not_asn: []
+  #     filter_ip: ['10.0.0.0/8']
+  #     filter_not_ip: []
 
   default_backend:
+
+defaults_frontend_route:
+  domains: []
+  filter_country: []
+  filter_not_country: []
+  filter_asn: []
+  filter_not_asn: []
+  filter_ip: []
+  filter_not_ip: []
 
 defaults_backend:
   mode: 'http'

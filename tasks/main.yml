@@ -5,8 +5,26 @@
     that:
       - haproxy is defined
       - HAPROXY_CONFIG.version in HAPROXY_HC.valid_versions
+      # make sure we will be able to auto-download geoip dbs
+      - not HAPROXY_CONFIG.geoip.enable|bool or not HAPROXY_CONFIG.geoip.manage_db|bool or HAPROXY_CONFIG.geoip.token|default(none, true) is not none
+      - not HAPROXY_CONFIG.geoip.enable|bool or not HAPROXY_CONFIG.geoip.manage_db|bool or HAPROXY_CONFIG.geoip.provider in HAPROXY_HC.valid_geoip_providers
   tags: always
 
 - name: HAProxy | Processing debian config
   ansible.builtin.import_tasks: debian/main.yml
   when: "ansible_distribution|lower in ['debian', 'ubuntu']"
+
+- name: HAProxy | Validating config
+  ansible.builtin.command: "/usr/sbin/haproxy -c -f /etc/haproxy/haproxy.cfg -f {{ HAPROXY_HC.path.config }}/"
+  tags: always
+  no_log: true
+  ignore_errors: true
+  changed_when: false
+  register: hap_error
+
+- name: HAProxy | Showing pretty error
+  ansible.builtin.debug:
+    msg: "{{ hap_error.stderr_lines }}"
+  tags: always
+  failed_when: hap_error.failed
+  when: hap_error.failed

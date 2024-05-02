@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+set -euo pipefail
+
+TOKEN="{{ HAPROXY_CONFIG.geoip.token }}"
+
+DST_ASN="{{ HAPROXY_HC.path.geoip_db }}/asn.mmdb"
+DST_COUNTRY="{{ HAPROXY_HC.path.geoip_db }}/country.mmdb"
+
+{% if HAPROXY_CONFIG.geoip.provider == 'maxmind' %}
+TMP_DIR="/tmp/$(date +'%s')"
+curl -L -u "$TOKEN" "{{ HAPROXY_HC.url.geoip_maxmind_asn }}" -o "${TMP_DIR}/asn.mmdb.tar.gz"
+curl -L -u "$TOKEN" "{{ HAPROXY_HC.url.geoip_maxmind_country }}" -o "${TMP_DIR}/country.mmdb.tar.gz"
+
+cd "$TMP_DIR"
+tar -xvf 'asn.mmdb.tar.gz' --strip-components=1
+mv 'GeoLite2-ASN.mmdb' "$DST_ASN"
+tar -xvf 'country.mmdb.tar.gz' --strip-components=1
+mv 'GeoLite2-Country.mmdb' "$DST_COUNTRY"
+
+cd /tmp
+rm -rf "$TMP_DIR"
+
+{% else %}
+curl -L "{{ HAPROXY_HC.url.geoip_ipinfo_asn }}${TOKEN}" -o "$DST_ASN"
+curl -L "{{ HAPROXY_HC.url.geoip_ipinfo_country }}${TOKEN}" -o "$DST_COUNTRY"
+{% endif %}

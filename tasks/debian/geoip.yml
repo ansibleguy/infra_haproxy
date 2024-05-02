@@ -1,2 +1,137 @@
 ---
 
+- name: HAProxy | GeoIP | Creating service user
+  ansible.builtin.user:
+    name: "{{ HAPROXY_HC.user_geoip }}"
+    shell: '/usr/sbin/nologin'
+    comment: 'HAProxy GeoIP Lookup Serviceuser'
+
+- name: HAProxy | GeoIP | Create map & lua directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750
+  loop:
+    - "{{ HAPROXY_HC.path.map }}"
+    - "{{ HAPROXY_HC.path.lua }}"
+
+- name: HAProxy | GeoIP | Touch map files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: touch
+    modification_time: preserve
+    access_time: preserve
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0640
+  loop:
+    - "{{ HAPROXY_HC.path.map_geoip_country }}"
+    - "{{ HAPROXY_HC.path.map_geoip_asn }}"
+    - "{{ HAPROXY_HC.path.map_geoip_as_name }}"
+
+- name: HAProxy | GeoIP | Create GeoIP-DB directory
+  ansible.builtin.file:
+    path: "{{ HAPROXY_HC.path.geoip_db }}"
+    state: directory
+    owner: "{{ HAPROXY_HC.user_geoip }}"
+    group: "{{ HAPROXY_HC.user_geoip }}"
+    mode: 0755
+
+- name: HAProxy | GeoIP | Add LUA Lookup-Module
+  ansible.builtin.template:
+    src: "templates{{ HAPROXY_HC.path.lua }}/geoip.lua.j2"
+    dest: "{{ HAPROXY_HC.path.lua }}/geoip.lua"
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750
+  tags: config
+
+- name: HAProxy | GeoIP | Checking if Lookup-Service Binary exists
+  ansible.builtin.stat:
+    path: "{{ HAPROXY_HC.path.geoip_bin }}"
+  register: geoip_lookup_bin
+
+- name: HAProxy | GeoIP | Download Lookup-Service Binary
+  ansible.builtin.unarchive:
+    src: "{{ HAPROXY_HC.url.geoip_bin }}"
+    dest: '/tmp'
+    remote_src: yes
+    extra_opts: ['--strip-components=1']
+    mode: 0750
+  when: not geoip_lookup_bin.stat.exists or force_update | bool
+
+- name: HAProxy | GeoIP | Move Lookup-Service Binary
+  ansible.builtin.copy:
+    src: "/tmp/{{ HAPROXY_HC.path.geoip_bin_src }}"
+    remote_src: yes
+    dest: "{{ HAPROXY_HC.path.geoip_bin }}"
+    owner: 'root'
+    group: "{{ HAPROXY_HC.user_geoip }}"
+    mode: 0750
+  when: not geoip_lookup_bin.stat.exists or force_update | bool
+
+- name: HAProxy | GeoIP | Testing
+  ansible.builtin.command: "timeout 1 {{ HAPROXY_HC.path.geoip_bin }} -p 53293"
+  changed_when: false
+  register: geoip_lookup_test
+  failed_when: geoip_lookup_test.rc != 124
+  when: not geoip_lookup_bin.stat.exists or force_update | bool
+
+- name: HAProxy | GeoIP | Update Script
+  ansible.builtin.template:
+    src: "templates{{ HAPROXY_HC.path.geoip_update_script }}.j2"
+    dest: "{{ HAPROXY_HC.path.geoip_update_script }}"
+    owner: 'root'
+    group: "{{ HAPROXY_HC.user_geoip }}"
+    mode: 0750
+  when: HAPROXY_CONFIG.geoip.manage_db | bool
+
+- name: HAProxy | GeoIP | Update Service/Timer
+  ansible.builtin.template:
+    src: "templates/etc/systemd/system/{{ HAPROXY_HC.service_geoip_update }}.{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ HAPROXY_HC.service_geoip_update }}.{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  loop:
+    - 'service'
+    - 'timer'
+  when: HAPROXY_CONFIG.geoip.manage_db | bool
+  register: geoip_update_svc
+
+- name: HAProxy | GeoIP | Lookup Service/Timer
+  ansible.builtin.template:
+    src: "templates/etc/systemd/system/{{ HAPROXY_HC.service_geoip_lookup }}.service.j2"
+    dest: "/etc/systemd/system/{{ HAPROXY_HC.service_geoip_lookup }}.service"
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  register: geoip_lookup_svc
+
+- name: HAProxy | GeoIP | Systemd Daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: geoip_update_svc.changed or geoip_lookup_svc.changed
+
+- name: HAProxy | GeoIP | Initialize DBs
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_geoip_update }}.service"
+    state: started
+  when:
+    - HAPROXY_CONFIG.geoip.manage_db | bool
+    - geoip_update_svc.changed
+
+- name: HAProxy | GeoIP | Enable & Start Update Timer
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_geoip_update }}.timer"
+    enabled: true
+    state: started
+  when: HAPROXY_CONFIG.geoip.manage_db | bool
+
+- name: HAProxy | GeoIP | Enable & Start Lookup Service
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_geoip_lookup }}.service"
+    enabled: true
+    state: started

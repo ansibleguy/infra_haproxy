@@ -1,0 +1,31 @@
+
+    # GEOIP
+    acl private_nets src 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 127.0.0.0/8 ::1
+    http-request set-var(txn.geoip_country) str(00) if private_nets
+
+{% if cnf.geoip.country | bool %}
+    ## GEOIP COUNTRY
+    acl geoip_country_in_map src,ipmask(24,48),map_ip({{ HAPROXY_HC.path.map_geoip_country }}) -m found
+    http-request set-var(txn.geoip_country) src,ipmask(24,48),map({{ HAPROXY_HC.path.map_geoip_country }}) if !private_nets geoip_country_in_map
+    http-request lua.lookup_geoip_country if !{ var(txn.geoip_country) -m found }
+    http-request set-map({{ HAPROXY_HC.path.map_geoip_country }}) %[src,ipmask(24,48)] %[var(txn.geoip_country)] if !private_nets !geoip_country_in_map
+    http-request capture var(txn.geoip_country) len 2
+{% endif %}
+
+{% if cnf.geoip.asn | bool %}
+    ## GEOIP ASN
+    acl geoip_asn_in_map src,ipmask(24,48),map_ip({{ HAPROXY_HC.path.map_geoip_asn }}) -m found
+    http-request set-var(txn.geoip_asn) src,ipmask(24,48),map({{ HAPROXY_HC.path.map_geoip_asn }}) if !private_nets geoip_asn_in_map
+    http-request lua.lookup_geoip_asn if !{ var(txn.geoip_asn) -m found }
+    http-request set-map({{ HAPROXY_HC.path.map_geoip_asn }}) %[src,ipmask(24,48)] %[var(txn.geoip_asn)] if !private_nets !geoip_asn_in_map
+    http-request capture var(txn.geoip_asn) len 10
+{% endif %}
+
+{% if cnf.geoip.asn_name | bool %}
+    ## GEOIP ASN-NAME
+    acl geoip_asname_in_map src,ipmask(24,48),map_ip({{ HAPROXY_HC.path.map_geoip_as_name }}) -m found
+    http-request set-var(txn.geoip_asname) src,ipmask(24,48),map({{ HAPROXY_HC.path.map_geoip_as_name }}) if !private_nets geoip_asname_in_map
+    http-request lua.lookup_geoip_asname if !{ var(txn.geoip_asname) -m found }
+    http-request set-map({{ HAPROXY_HC.path.map_geoip_as_name }}) %[src,ipmask(24,48)] %[var(txn.geoip_asname)] if !private_nets !geoip_asname_in_map
+    http-request capture var(txn.geoip_asname) len 50
+{% endif %}

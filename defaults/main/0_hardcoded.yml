@@ -1,11 +1,45 @@
 ---
 
+cpu_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
+
 HAPROXY_HC:
   valid_versions: ['2.6', '2.7', '2.8', '2.9']
   path:
     config: '/etc/haproxy/conf.d'
     acme: '/etc/ssl/haproxy_acme'
+    map: '/etc/haproxy/map'
+    lua: '/etc/haproxy/lua'
+    geoip_bin: '/usr/local/bin/geoip-lookup'
+    geoip_bin_src: "geoip-lookup-linux-{{ cpu_arch }}-CGO0"
+    geoip_update_script: '/usr/local/bin/geoip-db-update.sh'
+    geoip_db: '/var/local/lib/geoip'
+    map_geoip_country: '/etc/haproxy/map/geoip_country.map'
+    map_geoip_asn: '/etc/haproxy/map/geoip_asn.map'
+    map_geoip_as_name: '/etc/haproxy/map/geoip_as_name.map'
 
   user: 'haproxy'
   group: 'haproxy'
 
+  url:
+    geoip_bin: "https://github.com/superstes/geoip-lookup-service/releases/download/1.0/geoip-lookup-linux-{{ cpu_arch }}-CGO0.tar.gz"
+    geoip_ipinfo_country: "https://ipinfo.io/data/free/country.mmdb?token="
+    geoip_ipinfo_asn: "https://ipinfo.io/data/free/asn.mmdb?token="
+    geoip_maxmind_country: "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz"
+    geoip_maxmind_asn: "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz"
+
+  valid_geoip_providers: ['ipinfo', 'maxmind']
+  geoip_lookup_port: 10069
+  user_geoip: 'haproxy-geoip'
+  service_geoip_lookup: 'haproxy-geoip-lookup'
+  service_geoip_update: 'haproxy-geoip-update'
+  geoip_update_timer:  'Mon *-*-* 01:00:00'
+  geoip_lookup_filters:
+    ipinfo:
+      country: 'country'
+      asn: 'asn'
+      as_name: 'name'
+
+    maxmind:
+      country: 'country.iso_code'
+      asn: 'autonomous_system_number'
+      as_name: 'autonomous_system_organization'

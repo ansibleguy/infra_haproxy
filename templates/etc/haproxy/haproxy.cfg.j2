@@ -1,9 +1,14 @@
 # {{ ansible_managed }}
+# ansibleguy.infra_haproxy
 
 global
     daemon
     user {{ HAPROXY_HC.user }}
     group {{ HAPROXY_HC.group }}
+
+{% if HAPROXY_CONFIG.geoip.enable | bool %}
+    lua-load {{ HAPROXY_HC.path.lua }}/geoip.lua
+{% endif %}
 
 {% for key, value in HAPROXY_CONFIG.global.items() %}
 {%   if value | default(none, true) is none %}

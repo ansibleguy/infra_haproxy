@@ -49,6 +49,7 @@
   ansible.builtin.copy:
     content: |
       # ansible_managed
+      # ansibleguy.infra_haproxy
 
       [Unit]
       Documentation=https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/
@@ -74,3 +75,8 @@
   ansible.builtin.systemd:
     daemon_reload: true
   when: hap_svc_ovr.changed
+
+- name: HAProxy | Install | Enable Service
+  ansible.builtin.systemd:
+    name: 'haproxy.service'
+    enabled: true

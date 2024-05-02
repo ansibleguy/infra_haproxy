@@ -1,11 +1,14 @@
 # {{ ansible_managed }}
+# ansibleguy.infra_haproxy
 
-{% for name, cnf in HAPROXY_CONFIG.backends.items() %}
+{% for name, cnf_user in HAPROXY_CONFIG.backends.items() %}
+{%   set cnf = defaults_backend | combine(cnf_user, recursive=true) %}
+
 backend {{ name }}
     mode {{ cnf.mode }}
     balance {{ cnf.balance }}
 
-{%  if cnf.check | bool and mode == 'http' %}
+{%  if cnf.check | bool and cnf.mode == 'http' %}
     option httpchk
 {%    if cnf.check_uri | default(none, true) is not none %}
     http-check send meth {{ cnf.check_method }} uri {{ cnf.check_uri }}

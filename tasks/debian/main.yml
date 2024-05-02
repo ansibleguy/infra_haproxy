@@ -6,11 +6,11 @@
 
 - name: HAProxy | SSL/TLS Certificates
   ansible.builtin.import_tasks: debian/certs.yml
-  tags: [ssl, tls, certs, certificates]
+  tags: [ssl]
 
-# - name: HAProxy | GeoIP
-#   ansible.builtin.import_tasks: debian/geoip.yml
-#   tags: [geoip]
+- name: HAProxy | GeoIP
+  ansible.builtin.import_tasks: debian/geoip.yml
+  tags: [geoip]
 
 - name: HAProxy | Config
   ansible.builtin.import_tasks: debian/config.yml

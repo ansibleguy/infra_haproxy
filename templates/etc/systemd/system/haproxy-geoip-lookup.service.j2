@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+[Unit]
+Description=HAProxy GeoIP Lookup Service
+Documentation=https://github.com/superstes/geoip-lookup-service
+Documentation=https://github.com/ansibleguy/infra_haproxy
+
+[Service]
+Type=simple
+ExecStart={{ HAPROXY_HC.path.geoip_bin }} -l 127.0.0.1 -p {{ HAPROXY_HC.geoip_lookup_port }} -t {{ HAPROXY_CONFIG.geoip.provider }} -plain -country {{ HAPROXY_HC.path.geoip_db }}/country.mmdb -asn {{ HAPROXY_HC.path.geoip_db }}/asn.mmdb
+
+User={{ HAPROXY_HC.user_geoip }}
+Group={{ HAPROXY_HC.user_geoip }}
+Restart=on-failure
+RestartSec=5s
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=haproxy-geoip
+
+[Install]
+WantedBy=multi-user.target

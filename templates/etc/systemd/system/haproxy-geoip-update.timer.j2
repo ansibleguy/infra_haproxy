@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+
+[Unit]
+Description=Timer to start HAProxy GeoIP Update
+
+[Timer]
+OnCalendar={{ HAPROXY_HC.geoip_update_timer }}
+Persistent=false
+WakeSystem=false
+
+[Install]
+WantedBy=multi-user.target
