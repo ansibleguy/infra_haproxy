@@ -66,15 +66,13 @@
       WELLKNOWN="{{ HAPROXY_HC.path.acme_challenges }}"
       CONTACT_EMAIL="{{ HAPROXY_CONFIG.acme.email }}"
       HOOK="{{ HAPROXY_HC.path.acme_script_hook }}"
-
       CA="letsencrypt"
       KEYSIZE="4096"
       KEY_ALGO="secp384r1"
       RENEW_DAYS="30"
-
       AUTO_CLEANUP="yes"
-      OCSP_FETCH="{{ 'yes' if HAPROXY_CONFIG.acme.ocsp_fetch|bool else 'no' }}"
-      OCSP_MUST_STAPLE="{{ 'yes' if HAPROXY_CONFIG.acme.ocsp_must_staple|bool else 'no' }}"
+      OCSP_FETCH="{{ 'yes' if HAPROXY_CONFIG.acme.ocsp_fetch | bool else 'no' }}"
+      OCSP_MUST_STAPLE="{{ 'yes' if HAPROXY_CONFIG.acme.ocsp_must_staple | bool else 'no' }}"
     dest: "{{ HAPROXY_HC.path.acme_config }}/config"
     owner: 'root'
     group: "{{ HAPROXY_HC.user_acme }}"
@@ -139,7 +137,7 @@
     - 'service'
     - 'timer'
   register: acme_reload_svc
-  notify: haproxy-reload
+  notify: HAProxy-reload
 
 - name: HAProxy | ACME | Systemd Daemon-reload
   ansible.builtin.systemd:

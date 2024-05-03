@@ -8,21 +8,23 @@
 # https://haproxy.debian.net
 - name: HAProxy | Install | Adding repository key
   ansible.builtin.shell: |
+    set -o pipefail
     curl https://haproxy.debian.net/bernat.debian.org.gpg |
     gpg --dearmor > /usr/share/keyrings/haproxy.debian.net.gpg
   changed_when: false
+  tags: [skip_ansible_lint]  # lazy - open to PRs
 
 - name: HAProxy | Install | Adding repository
   ansible.builtin.copy:
     content: |
       # ansible_managed
-      deb [signed-by=/usr/share/keyrings/haproxy.debian.net.gpg] https://haproxy.debian.net bookworm-backports-{{ HAPROXY_CONFIG.version}} main
+      deb [signed-by=/usr/share/keyrings/haproxy.debian.net.gpg] https://haproxy.debian.net bookworm-backports-{{ HAPROXY_CONFIG.version }} main
     dest: '/etc/apt/sources.list.d/haproxy-community.list'
     mode: 0644
 
 - name: HAProxy | Install
   ansible.builtin.apt:
-    pkg: "haproxy={{ HAPROXY_CONFIG.version}}*"
+    pkg: "haproxy={{ HAPROXY_CONFIG.version }}*"
     state: present
     update_cache: true
 
@@ -52,7 +54,7 @@
     owner: 'root'
     group: 'root'
     mode: 0644
-  notify: haproxy-restart
+  notify: HAProxy-restart
   register: hap_svc_ovr
 
 - name: HAProxy | Install | Systemd Daemon-reload

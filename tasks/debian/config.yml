@@ -7,7 +7,7 @@
     owner: 'root'
     group: 'haproxy'
     mode: 0640
-  notify: haproxy-reload
+  notify: HAProxy-reload
 
 - name: HAProxy | Config | Backends/Frontends/Stats
   ansible.builtin.template:
@@ -20,4 +20,4 @@
     - 'backend'
     - 'frontend'
     - 'stats'
-  notify: haproxy-reload
+  notify: HAProxy-reload
