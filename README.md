@@ -94,6 +94,20 @@ ansible-galaxy install -r requirements.yml
 * **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
 
 
+* **Info**: You can easily filter access to backends by using the `filter` and `filter_not` settings:
+
+    `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
+
+
+* **Info**: A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/0_hardcoded.yml) for the list of bots that are blocked.
+
+
+* **Info**: You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
+
+
+### GeoIP
+
+
 * **Warning:** If you use the auto-provisioned GeoIP databases - make sure your product follows their license agreement:
 
     * **IPinfo**: [Information](https://ipinfo.io/products/free-ip-database), [CC4 License](https://creativecommons.org/licenses/by-sa/4.0/) (*allows for commercial usage - you need to add an attribution*)
@@ -117,15 +131,6 @@ ansible-galaxy install -r requirements.yml
 * **Info**: You can test the [GeoIP Lookup Microservice](https://github.com/superstes/haproxy-geoip) manually by using curl: `curl 'http://127.0.0.1:10069/?lookup=country&ip=1.1.1.1'`
 
 
-* **Info**: You can easily filter access to backends by using the `filter` and `filter_not` settings:
-
-    `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
-
-
-* **Info**: A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/0_hardcoded.yml) for the list of bots that are blocked.
-
-
-* **Info**: You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
 ----
 
 
