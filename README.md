@@ -61,9 +61,14 @@ ansible-galaxy install -r requirements.yml
 
   * **Default opt-ins**:
     * Frontend
-      * Redirect non SSL traffic to SSL if in HTTP mode
-      * Logging User-Agent
-      * Setting basic security-headers
+      * HTTP mode
+        * Redirect non SSL traffic to SSL
+        * Logging User-Agent
+        * Setting basic security-headers
+
+    * Backend
+      * HTTP mode
+        * Blocking TRACE & CONNECT methods
 
 
   * **Default opt-outs**:
@@ -72,6 +77,7 @@ ansible-galaxy install -r requirements.yml
       * [ACME/LetsEncrypt](https://github.com/dehydrated-io/dehydrated)
       * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
       * Blocking of well-known Script-Bots
+      * Blocking TRACE & CONNECT methods
 
 ----
 
@@ -118,6 +124,8 @@ ansible-galaxy install -r requirements.yml
 
 * **Info**: A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/0_hardcoded.yml) for the list of bots that are blocked.
 
+
+* **Info**: You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
 ----
 
 
@@ -198,6 +206,9 @@ haproxy:
         enable: true
 
       security:
+        restrict_methods: true
+        allow_only_methods: ['HEAD', 'GET', 'POST']
+        
         # very basic filtering of bad bots based on user-agent matching
         block_script_bots: true
         block_bad_crawler_bots: true
@@ -306,6 +317,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 ### Roadmap
 
 * Security - Basic bot flagging
+* Security - Basic rate limit (GET/HEAD and POST/PUT/DELETE separated)
 * 'Interface' for Dict to Map-File translation/creation
 * Option to easily Download & Integrate IPLists (*like Tor Exit nodes*)
 * Easy way to override the default error-files

@@ -20,7 +20,9 @@ backend {{ name }}
 {%    endif %}
 {%  endif %}
 
-{% include "inc/security.j2" %}
+{% if cnf.mode == 'http' %}
+{%   include "inc/security.j2" %}
+{% endif %}
 
 {%  if cnf.lines | is_dict %}
 {%    for section, lines in cnf.lines.items() %}

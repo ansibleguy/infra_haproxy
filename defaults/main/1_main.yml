@@ -45,9 +45,9 @@ defaults_haproxy:
     'stats timeout': '30s'
     ca-base: '/etc/ssl/certs'
     crt-base: '/etc/ssl/private'
-    ssl-default-bind-ciphers: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384\
+    ssl-default-bind-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384\
     :ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
-    DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384'
+    DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
     ssl-default-bind-ciphersuites: 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256'
     ssl-default-bind-options: 'ssl-min-ver TLSv1.2 no-tls-tickets'
 
@@ -82,6 +82,12 @@ defaults_frontend:
   ssl_redirect: true
   security:
     headers: true
+
+    restrict_methods: false
+    allow_only_methods: ['HEAD', 'GET', 'POST']
+    # if 'restrict_methods' is disabled - this will still deny 'TRACE' & 'CONNECT' as they might open your server/services up to attacks
+    deny_dangerous_methods: false
+
     block_script_bots: false
     block_bad_crawler_bots: false
     block_status_code: 425
@@ -124,6 +130,11 @@ defaults_backend:
   ssl_verify: 'none'  # example: 'required ca-file /etc/ssl/certs/my_ca.crt verifyhost host01.intern'
 
   security:
+    restrict_methods: false
+    allow_only_methods: ['HEAD', 'GET', 'POST']
+    # if 'restrict_methods' is disabled - this will still deny 'TRACE' & 'CONNECT' as they might open your server/services up to attacks
+    deny_dangerous_methods: true
+
     block_script_bots: false
     block_bad_crawler_bots: false
     block_status_code: 425

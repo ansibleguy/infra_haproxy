@@ -1,4 +1,10 @@
 
+{% if cnf.security.restrict_methods | bool and cnf.security.allow_only_methods | length > 0 %}
+    http-request deny status 405 default-errorfiles if !{ method {{ cnf.security.allow_only_methods | join(' ') }} }
+{% elif cnf.security.deny_dangerous_methods | bool %}
+    http-request deny status 405 default-errorfiles if { method TRACE CONNECT }
+{% endif %}
+
 {% if cnf.security.block_script_bots | bool %}
   # block well-known script-bots
     http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if !{ req.fhdr(User-Agent) -m found }
@@ -6,15 +12,15 @@
   http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_HC.user_agents.script.full | ensure_list | join(' ') }} }
 {%   endif %}
 {%   if HAPROXY_HC.user_agents.script.sub | length > 0 %}
-  http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_HC.user_agents.script.sub | ensure_list | join(' ') }} }
+    http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_HC.user_agents.script.sub | ensure_list | join(' ') }} }
 {%   endif %}
 {% endif %}
 {% if cnf.security.block_bad_crawler_bots | bool %}
   # block well-known bad-crawler-bots
 {%   if HAPROXY_HC.user_agents.bad_crawlers.full | length > 0 %}
-  http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_HC.user_agents.bad_crawlers.full | ensure_list | join(' ') }} }
+    http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_HC.user_agents.bad_crawlers.full | ensure_list | join(' ') }} }
 {%   endif %}
 {%   if HAPROXY_HC.user_agents.bad_crawlers.sub | length > 0 %}
-  http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_HC.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
+    http-request deny status {{ cnf.security.block_status_code }} default-errorfiles if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_HC.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
 {%   endif %}
 {% endif %}
