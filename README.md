@@ -89,7 +89,7 @@ ansible-galaxy install -r requirements.yml
 * **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
 
 
-* **:** You can easily filter access to backends by using the `filter` and `filter_not` settings:
+* **Info:** You can easily filter access to backends by using the `filter` and `filter_not` settings:
 
     `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
 
@@ -100,7 +100,7 @@ ansible-galaxy install -r requirements.yml
 * **Info:** You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
 
 
-* **Tip:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
+* **Info:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
 
 
 ### GeoIP
