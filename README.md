@@ -201,7 +201,7 @@ haproxy:
       default_backend: 'be_db'
 
     fe_restricted:
-      bind: ['[::]:8080 v4v6', '[::]:8443 v4v6 ssl /etc/myapp/mycert.pem']
+      bind: ['[::]:8080 v4v6', '[::]:8443 v4v6 ssl crt /etc/myapp/mycert.pem']
 
       geoip:
         enable: true
