@@ -52,12 +52,7 @@ ansible-galaxy install -r requirements.yml
 
   * **Default config**:
     * Globals/Defaults - as seen in default installations
-    * Backend
-      * Balance mode 'leastconn'
-      * Server SSL
-      * Server SSL verification
-      * Health-Check
- 
+
 
   * **Default opt-ins**:
     * Frontend
