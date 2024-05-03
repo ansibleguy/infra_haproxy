@@ -60,3 +60,56 @@ HAPROXY_HC:
   acme_reload_timer:  '*-*-* 03:00:00'
   service_acme: 'haproxy-acme'
   service_acme_reload: 'haproxy-acme-reload'
+
+  # see also: https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/blob/master/_generator_lists/bad-user-agents.list
+  user_agents:
+    # Well-known user-agents used by scripting languages for very basic security-filtering
+    # matching is done case-insensitive
+    script:
+      # NOTE: empty user-agent is also matched
+      full: []
+
+      # NOTE: these are sub-strings inside the user-agent header
+      sub:
+        # cli tools
+        - 'curl'
+        - 'wget'
+        - 'Apache-HttpClient'
+        - 'nmap'
+        - 'Metasploit'
+        # automation tools
+        - 'headless'
+        - 'cypress'
+        # golang
+        - 'go-http-client'
+        - 'zgrab'
+        # python
+        - 'python'
+        - 'httpx'
+        - 'httpcore'
+        - 'aiohttp'
+        - 'httputil'
+        - 'urllib'
+        # php
+        - 'GuzzleHttp'
+        - 'phpcrawl'
+        - 'Zend_Http_Client'
+        - 'Wordpress'
+        - 'Symfony-HttpClient'
+        # others
+        - 'cpp-httplib'  # c++
+        - 'java'
+        - 'perl'
+        - 'axios'  # JS
+        - 'ruby'
+
+    bad_crawlers:
+      full: []
+      sub:
+        - 'spider'
+        - 'test-bot'
+        - 'tiny-bot'
+        - 'fidget-spinner-bot'
+        - 'download'
+        # python
+        - 'scrapy'

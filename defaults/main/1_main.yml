@@ -78,7 +78,12 @@ defaults_frontend:
     domains: []
 
   ssl_redirect: true
-  security_headers: true
+  security:
+    headers: true
+    block_script_bots: false
+    block_bad_crawler_bots: false
+    block_status_code: 425
+
   log:
     user_agent: true
 
@@ -106,6 +111,29 @@ defaults_frontend:
 
   default_backend:
 
+defaults_backend:
+  mode: 'http'
+  balance: 'leastconn'
+
+  lines: {}  # raw config lines to add - section to lines mapping to make resulting config human-readable
+
+  servers: []
+  ssl: false
+  ssl_verify: 'none'  # example: 'required ca-file /etc/ssl/certs/my_ca.crt verifyhost host01.intern'
+
+  security:
+    block_script_bots: false
+    block_bad_crawler_bots: false
+    block_status_code: 425
+
+  # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
+  #   more complex ones should be implemented by supplying the raw config-lines
+  check: true
+  check_http: false  # httpchk
+  check_method: 'GET'
+  check_uri:
+  check_expect:
+
 defaults_security_headers:
   Strict-Transport-Security: 'max-age=16000000; includeSubDomains; preload;'
   X-Frame-Options: 'DENY'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
@@ -121,21 +149,3 @@ defaults_frontend_route:
   filter_not_asn: []
   filter_ip: []
   filter_not_ip: []
-
-defaults_backend:
-  mode: 'http'
-  balance: 'leastconn'
-
-  lines: {}  # raw config lines to add - section to lines mapping to make resulting config human-readable
-
-  servers: []
-  ssl: false
-  ssl_verify: 'none'  # example: 'required ca-file /etc/ssl/certs/my_ca.crt verifyhost host01.intern'
-
-  # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
-  #   more complex ones should be implemented by supplying the raw config-lines
-  check: true
-  check_http: false  # httpchk
-  check_method: 'GET'
-  check_uri:
-  check_expect:

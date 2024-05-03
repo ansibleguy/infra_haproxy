@@ -27,11 +27,13 @@ frontend {{ name }}
 {% include "inc/geoip.j2" %}
 {%   endif %}
 
-{%   if cnf.security_headers | bool %}
-{%     for header, value in defaults_security_headers.items() %}
+{% if cnf.security.headers | bool %}
+{%   for header, value in defaults_security_headers.items() %}
     http-response set-header {{ header }} "{{ value }}"
-{%     endfor %}
-{%   endif %}
+{%   endfor %}
+{% endif %}
+
+{% include "inc/security.j2" %}
 
 {%   if cnf.log.user_agent | bool %}
     http-request capture req.fhdr(User-Agent) len 200

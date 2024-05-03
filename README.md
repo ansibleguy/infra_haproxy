@@ -6,6 +6,8 @@
 
 Role to deploy HAProxy (*Focus on the Community Version*)
 
+I think the `frontend` => `route` => `backend` abstraction implemented by this Role is very nice to work with. Please [give me some Feedback](https://github.com/ansibleguy/infra_haproxy/discussions)!
+
 <a href='https://ko-fi.com/ansible0guy' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy me a coffee' />
 
 [![Molecule Test Status](https://badges.ansibleguy.net/infra_haproxy.molecule.svg)](https://github.com/ansibleguy/_meta_cicd/blob/latest/templates/usr/local/bin/cicd/molecule.sh.j2)
@@ -18,6 +20,8 @@ Molecule Logs: [Short](https://badges.ansibleguy.net/log/molecule_infra_haproxy_
 
 **Tested:**
 * Debian 12
+
+----
 
 ## Install
 
@@ -34,6 +38,8 @@ ansible-galaxy install ansibleguy.infra_haproxy --roles-path ./roles
 # install dependencies
 ansible-galaxy install -r requirements.yml
 ```
+
+----
 
 ## Functionality
 
@@ -65,7 +71,9 @@ ansible-galaxy install -r requirements.yml
     * Frontend
       * [ACME/LetsEncrypt](https://github.com/dehydrated-io/dehydrated)
       * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
+      * Blocking of well-known Script-Bots
 
+----
 
 ## Info
 
@@ -74,7 +82,7 @@ ansible-galaxy install -r requirements.yml
 
 * **Note:** Most of the role's functionality can be opted in or out.
 
-  For all available options - see the default-config located in the main defaults-file!
+  For all available options - see the default-config located in [the main defaults-file](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/1_main.yml)!
 
 
 * **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
@@ -108,6 +116,11 @@ ansible-galaxy install -r requirements.yml
     `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
 
 
+* **Info**: A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/0_hardcoded.yml) for the list of bots that are blocked.
+
+----
+
+
 ## Usage
 
 ### Config
@@ -126,8 +139,7 @@ haproxy:
       acme:
         enable: true
         domains: ['app.template.ansibleguy.net']
-      
-      
+
       routes:
         be_intern:
           filter_ip: '10.0.0.0/8'
@@ -144,6 +156,8 @@ haproxy:
     be_fallback:
       lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
 ```
+
+----
 
 Define the config as needed:
 
@@ -183,6 +197,11 @@ haproxy:
       geoip:
         enable: true
 
+      security:
+        # very basic filtering of bad bots based on user-agent matching
+        block_script_bots: true
+        block_bad_crawler_bots: true
+
       routes:
         be_app02:
           filter_country: ['AT', 'DE', 'CH']
@@ -207,6 +226,11 @@ haproxy:
       check_expect: 'status 200'
 
     be_app02:
+      security:
+        # very basic filtering of bad bots based on user-agent matching
+        block_script_bots: true
+        block_bad_crawler_bots: true
+
       ssl: true
       ssl_verify: 'none'  # default; example: 'required ca-file /etc/ssl/certs/my_ca.crt verifyhost host01.intern'
       servers:
@@ -257,6 +281,8 @@ You might want to use 'ansible-vault' to encrypt your passwords:
 ansible-vault encrypt_string
 ```
 
+----
+
 ### Execution
 
 Run the playbook:
@@ -274,3 +300,12 @@ To debug errors - you can set the 'debug' variable at runtime:
 ```bash
 ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 ```
+
+----
+
+### Roadmap
+
+* Security - Basic bot flagging
+* 'Interface' for Dict to Map-File translation/creation
+* Option to easily Download & Integrate IPLists (*like Tor Exit nodes*)
+* Easy way to override the default error-files

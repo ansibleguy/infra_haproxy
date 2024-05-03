@@ -20,6 +20,8 @@ backend {{ name }}
 {%    endif %}
 {%  endif %}
 
+{% include "inc/security.j2" %}
+
 {%  if cnf.lines | is_dict %}
 {%    for section, lines in cnf.lines.items() %}
     # SECTION: {{ section }}
