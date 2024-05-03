@@ -2,9 +2,9 @@
 
 # ansible-playbook -K -D -i inventory/hosts.yml playbook.yml
 
-- name: ROLE
-  hosts: all   # should be limited
+- name: Provision HAProxy
+  hosts: haproxy
   become: true
   gather_facts: yes
   roles:
-    - ansibleguy.ROLE
+    - ansibleguy.infra_haproxy
