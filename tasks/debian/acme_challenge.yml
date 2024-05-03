@@ -25,7 +25,7 @@
 
       server {
         listen 127.0.0.1:{{ HAPROXY_CONFIG.acme.challenge_port }};
-      
+
         autoindex off;
         server_tokens off;
 

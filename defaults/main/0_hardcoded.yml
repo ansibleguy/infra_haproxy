@@ -56,8 +56,8 @@ HAPROXY_HC:
       as_name: 'autonomous_system_organization'
 
   user_acme: 'haproxy-acme'
-  acme_update_timer:  '*-*-* 02:00:00'
-  acme_reload_timer:  '*-*-* 03:00:00'
+  acme_update_timer: '*-*-* 02:00:00'
+  acme_reload_timer: '*-*-* 03:00:00'
   service_acme: 'haproxy-acme'
   service_acme_reload: 'haproxy-acme-reload'
 
