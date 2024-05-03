@@ -92,6 +92,7 @@
   become_user: "{{ HAPROXY_HC.user_acme }}"
   become: true
   when: acme_cnf.changed
+  tags: [skip_ansible_lint]  # changed when
 
 # NOTE: haproxy fails to start if no certificates exist
 - name: HAProxy | ACME | Copy placeholder certificate
