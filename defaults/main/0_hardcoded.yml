@@ -43,7 +43,7 @@ HAPROXY_HC:
   user_geoip: 'haproxy-geoip'
   service_geoip_lookup: 'haproxy-geoip-lookup'
   service_geoip_update: 'haproxy-geoip-update'
-  geoip_update_timer:  'Mon *-*-* 01:00:00'
+  geoip_update_timer: 'Mon *-*-* 01:00:00'
   geoip_lookup_filters:
     ipinfo:
       country: 'country'

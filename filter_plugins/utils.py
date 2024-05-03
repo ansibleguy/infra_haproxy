@@ -30,4 +30,3 @@ class FilterModule(object):
     @staticmethod
     def safe_key(key: str) -> str:
         return regex_replace('[^0-9a-zA-Z_]+', '', key.replace(' ', '_'))
-
