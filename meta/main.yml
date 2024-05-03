@@ -6,9 +6,16 @@ galaxy_info:
   license: 'GPLv3'
   issue_tracker_url: 'https://github.com/ansibleguy/infra_haproxy/issues'
   min_ansible_version: '2.14'
-  description: ''
+  description: 'Role to deploy HAProxy Community (with GeoIP support built-in)'
   platforms:
     - name: Debian
       versions:
-        - bullseye
-  galaxy_tags: []
+        - bookworm
+  galaxy_tags:
+    - 'proxy'
+    - 'haproxy'
+    - 'loadbalancer'
+    - 'geoip'
+    - 'antibot'
+    - 'waf'
+    - 'security'
