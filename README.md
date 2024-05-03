@@ -149,12 +149,10 @@ haproxy:
       bind: ['[::]:80 v4v6', '[::]:443 v4v6 ssl']
       acme:
         enable: true
-        domains: ['app.template.ansibleguy.net']
 
       routes:
         be_intern:
-          filter_ip: '10.0.0.0/8'
-          filter_not_ip: '10.100.0.0/24'
+          domains: ['app.template.ansibleguy.net']
 
       default_backend: 'be_fallback'
 
