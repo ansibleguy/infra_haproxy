@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+
+[Unit]
+Description=Timer to start HAProxy ACME Certificate Renewal
+
+[Timer]
+OnCalendar={{ HAPROXY_HC.acme_update_timer }}
+Persistent=false
+WakeSystem=false
+
+[Install]
+WantedBy=multi-user.target

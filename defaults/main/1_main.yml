@@ -21,6 +21,15 @@ defaults_haproxy:
     pwd: 'monitor'
     realm: 'Authorized Personal Only'
 
+  acme:
+    enable: false
+    email:
+    ocsp_must_staple: false
+    ocsp_fetch: false
+    manage_challenge: true  # set-up nginx-light to handle acme challenge-responses
+    challenge_port: 8405  # port the webserver for challenge-responses listens on
+    domains: []
+
   geoip:
     enable: false
     manage_db: true
@@ -64,7 +73,10 @@ defaults_frontend:
   # ipv4 only: ':80'
   # ssl with acme enabled: ':443 ssl'
   # ssl with custom cert: ':443 ssl crt /etc/ssl/haproxy/site.pem'
-  acme: false
+  acme:
+    enable: false
+    domains: []
+
   ssl_redirect: true
   security_headers: true
   log:
@@ -78,7 +90,7 @@ defaults_frontend:
 
   lines: {}  # raw config lines to add - section to lines mapping to make resulting config human-readable
 
-  route: {}
+  routes: {}
   #  backend_name:
   #     domains: ['hostname1', 'hostname2']
   #     filter_country: ['AT', 'DE', 'CH']
@@ -123,6 +135,7 @@ defaults_backend:
   # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
   #   more complex ones should be implemented by supplying the raw config-lines
   check: true
+  check_http: false  # httpchk
   check_method: 'GET'
   check_uri:
   check_expect:

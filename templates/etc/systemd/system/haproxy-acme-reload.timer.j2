@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+
+[Unit]
+Description=Timer to perform HAProxy reload for certificate Renewal
+
+[Timer]
+OnCalendar={{ HAPROXY_HC.acme_reload_timer }}
+Persistent=false
+WakeSystem=false
+
+[Install]
+WantedBy=multi-user.target

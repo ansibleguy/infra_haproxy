@@ -1,0 +1,49 @@
+---
+
+- name: HAProxy | ACME | Install Nginx-Light to handle Challenge-Responses
+  ansible.builtin.apt:
+    pkg: ['nginx-light']
+    state: present
+
+- name: HAProxy | ACME | Remove Nginx default-config
+  ansible.builtin.file:
+    path: '/etc/nginx/sites-enabled/default'
+    state: absent
+
+- name: HAProxy | ACME | Create ACME challenge-directory
+  ansible.builtin.file:
+    path: "{{ HAPROXY_HC.path.acme_challenges }}"
+    state: directory
+    owner: "{{ HAPROXY_HC.user_acme }}"
+    group: 'www-data'
+    mode: 0755
+
+- name: HAProxy | ACME | Add Nginx config
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+
+      server {
+        listen 127.0.0.1:{{ HAPROXY_CONFIG.acme.challenge_port }};
+      
+        autoindex off;
+        server_tokens off;
+
+        location ^~ /.well-known/acme-challenge {
+          alias {{ HAPROXY_HC.path.acme_challenges }};
+        }
+        location / {
+          deny all;
+        }
+      }
+    dest: '/etc/nginx/sites-enabled/haproxy_acme'
+    mode: 0644
+    owner: 'root'
+    group: 'root'
+
+- name: HAProxy | ACME | Enable & Start Nginx
+  ansible.builtin.systemd:
+    name: 'nginx.service'
+    enabled: true
+    state: restarted
+  changed_when: false

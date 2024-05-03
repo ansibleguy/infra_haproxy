@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+[Unit]
+Description=HAProxy reload for certificate Renewal
+Documentation=https://github.com/ansibleguy/infra_haproxy
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl reload haproxy.service
+
+User=root
+Group=root
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=haproxy-acme
+
+[Install]
+WantedBy=multi-user.target

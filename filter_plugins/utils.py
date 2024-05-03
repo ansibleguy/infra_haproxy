@@ -1,3 +1,6 @@
+from re import sub as regex_replace
+
+
 class FilterModule(object):
 
     def filters(self):
@@ -5,6 +8,7 @@ class FilterModule(object):
             "ensure_list": self.ensure_list,
             "is_string": self.is_string,
             "is_dict": self.is_dict,
+            "safe_key": self.safe_key,
         }
 
     @staticmethod
@@ -22,3 +26,8 @@ class FilterModule(object):
     @staticmethod
     def is_dict(data) -> bool:
         return isinstance(data, dict)
+
+    @staticmethod
+    def safe_key(key: str) -> str:
+        return regex_replace('[^0-9a-zA-Z_]+', '', key.replace(' ', '_'))
+

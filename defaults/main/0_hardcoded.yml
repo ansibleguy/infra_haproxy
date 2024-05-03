@@ -1,12 +1,14 @@
 ---
 
+version_geoip_lookup: '1.0'
+version_dehydrated: '0.7.1'
+
 cpu_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
 
 HAPROXY_HC:
   valid_versions: ['2.6', '2.7', '2.8', '2.9']
   path:
     config: '/etc/haproxy/conf.d'
-    acme: '/etc/ssl/haproxy_acme'
     map: '/etc/haproxy/map'
     lua: '/etc/haproxy/lua'
     geoip_bin: '/usr/local/bin/geoip-lookup'
@@ -16,16 +18,25 @@ HAPROXY_HC:
     map_geoip_country: '/etc/haproxy/map/geoip_country.map'
     map_geoip_asn: '/etc/haproxy/map/geoip_asn.map'
     map_geoip_as_name: '/etc/haproxy/map/geoip_as_name.map'
+    acme_script: '/usr/local/bin/dehydrated.sh'
+    acme_script_hook: '/usr/local/bin/dehydrated_hook.sh'
+    acme_script_src: 'dehydrated'
+    acme: '/etc/ssl/haproxy_acme'
+    acme_certs: '/etc/ssl/haproxy_acme/certs'
+    acme_certs_raw: '/etc/ssl/haproxy_acme/certs_raw'
+    acme_challenges: '/var/www/haproxy_acme'
+    acme_config: '/etc/dehydrated'
 
   user: 'haproxy'
   group: 'haproxy'
 
   url:
-    geoip_bin: "https://github.com/superstes/geoip-lookup-service/releases/download/1.0/geoip-lookup-linux-{{ cpu_arch }}-CGO0.tar.gz"
+    geoip_bin: "https://github.com/superstes/geoip-lookup-service/releases/download/{{ version_geoip_lookup }}/geoip-lookup-linux-{{ cpu_arch }}-CGO0.tar.gz"
     geoip_ipinfo_country: "https://ipinfo.io/data/free/country.mmdb?token="
     geoip_ipinfo_asn: "https://ipinfo.io/data/free/asn.mmdb?token="
     geoip_maxmind_country: "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz"
     geoip_maxmind_asn: "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz"
+    acme_script: "https://github.com/dehydrated-io/dehydrated/releases/download/v{{ version_dehydrated }}/dehydrated-{{ version_dehydrated }}.tar.gz"
 
   valid_geoip_providers: ['ipinfo', 'maxmind']
   geoip_lookup_port: 10069
@@ -43,3 +54,9 @@ HAPROXY_HC:
       country: 'country.iso_code'
       asn: 'autonomous_system_number'
       as_name: 'autonomous_system_organization'
+
+  user_acme: 'haproxy-acme'
+  acme_update_timer:  '*-*-* 02:00:00'
+  acme_reload_timer:  '*-*-* 03:00:00'
+  service_acme: 'haproxy-acme'
+  service_acme_reload: 'haproxy-acme-reload'

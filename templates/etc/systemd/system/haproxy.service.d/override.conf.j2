@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+[Unit]
+Documentation=https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/
+Documentation=https://github.com/ansibleguy/infra_haproxy
+
+[Service]
+ExecStartPre=/usr/sbin/haproxy -c -f $CONFIG -f {{ HAPROXY_HC.path.config }}/
+ExecStart=
+ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG -f {{ HAPROXY_HC.path.config }}/ -p $PIDFILE $EXTRAOPTS
+
+ExecReload=
+ExecReload=/usr/sbin/haproxy -c -f $CONFIG -f {{ HAPROXY_HC.path.config }}/
+ExecReload=/bin/kill -USR2 $MAINPID
+
+RestartSec=10s
+Restart=on-failure
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=haproxy

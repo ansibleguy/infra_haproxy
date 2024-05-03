@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+# ansibleguy.infra_haproxy
+
+[Unit]
+Description=HAProxy ACME Certificate Renewal Service
+Documentation=https://github.com/dehydrated-io/dehydrated/wiki
+Documentation=https://github.com/ansibleguy/infra_haproxy
+
+[Service]
+Type=oneshot
+ExecStart={{ HAPROXY_HC.path.acme_script }} -c
+
+User={{ HAPROXY_HC.user_acme }}
+Group={{ HAPROXY_HC.user_acme }}
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=haproxy-acme
+
+[Install]
+WantedBy=multi-user.target

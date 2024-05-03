@@ -6,16 +6,20 @@
 frontend {{ name }}
     mode {{ cnf.mode }}
 {%   for bind in cnf.bind | ensure_list %}
-{%     if cnf.acme | bool %}
-    bind {{ bind | regex_replace('ssl$', 'ssl crt ' + HAPROXY_HC.path.acme) }}
+{%     if cnf.acme.enable | bool %}
+    bind {{ bind | regex_replace('ssl$', 'ssl crt ' + HAPROXY_HC.path.acme_certs) }}
 {%     else %}
     bind {{ bind }}
 {%     endif %}
 {%   endfor %}
 
 {%   if cnf.mode == 'http' %}
-{%     if cnf.ssl_redirect | bool and 'ssl' in cnf.bind.join('-') %}
+{%     if cnf.ssl_redirect | bool and 'ssl' in (cnf.bind | join('-')) %}
+{%       if cnf.acme.enable | bool %}
+    http-request redirect scheme https code 301 if !{ ssl_fc } !{ path_beg -i /.well-known/acme-challenge/ }
+{%       else %}
     http-request redirect scheme https code 301 unless { ssl_fc }
+{%       endif %}
 {%     endif %}
 {%   endif %}
 
@@ -49,24 +53,28 @@ frontend {{ name }}
 
 {%  endif %}
 
-{%  for be_name, be_cnf_user in cnf.route.items() %}
+{%   if cnf.acme.enable | bool %}
+    use_backend be_haproxy_acme if { path_beg -i /.well-known/acme-challenge/ }
+{%  endif %}
+
+{%  for be_name, be_cnf_user in cnf.routes.items() %}
 {%    set be_cnf = defaults_frontend_route | combine(be_cnf_user, recursive=true) %}
 
     # BACKEND {{ be_name }}
-    acl {{ be_name }}_domains req.hdr(host) -i {{ (be_cnf.domains | ensure_list).join(' ') }}
-    acl {{ be_name }}_filter_ip {% if be_cnf.filter_ip | length > 0 %}src (be_cnf.filter_ip | ensure_list).join(' '){% else %}always_true{% endif %}
-    acl {{ be_name }}_filter_not_ip {% if be_cnf.filter_not_ip | length > 0 %}src (be_cnf.filter_not_ip | ensure_list).join(' '){% else %}always_false{% endif %}
+    acl {{ be_name }}_domains req.hdr(host) -i {{ be_cnf.domains | ensure_list | join(' ') }}
+    acl {{ be_name }}_filter_ip {% if be_cnf.filter_ip | length > 0 %}src {{ be_cnf.filter_ip | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
+    acl {{ be_name }}_filter_not_ip {% if be_cnf.filter_not_ip | length > 0 %}src {{ be_cnf.filter_not_ip | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
 {%   if HAPROXY_CONFIG.geoip.enable | bool and cnf.geoip.enable | bool %}
 {%     if cnf.geoip.country | bool %}
-    acl {{ be_name }}_filter_country {% if be_cnf.filter_country | length > 0 %}var(txn.geoip_country) -i (be_cnf.filter_country | ensure_list).join(' '){% else %}always_true{% endif %}
-    acl {{ be_name }}_filter_not_country {% if be_cnf.filter_not_country | length > 0 %}var(txn.geoip_country) -i (be_cnf.filter_not_country | ensure_list).join(' '){% else %}always_false{% endif %}
+    acl {{ be_name }}_filter_country {% if be_cnf.filter_country | length > 0 %}var(txn.geoip_country) -m str -i {{ be_cnf.filter_country | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
+    acl {{ be_name }}_filter_not_country {% if be_cnf.filter_not_country | length > 0 %}var(txn.geoip_country) -m str -i {{ be_cnf.filter_not_country | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
 {%     else %}
     acl {{ be_name }}_filter_country always_true
     acl {{ be_name }}_filter_not_country always_false
 {%     endif %}
 {%     if cnf.geoip.asn | bool %}
-    acl {{ be_name }}_filter_asn {% if be_cnf.filter_asn | length > 0 %}var(txn.geoip_asn) -i (be_cnf.filter_asn | ensure_list).join(' '){% else %}always_true{% endif %}
-    acl {{ be_name }}_filter_not_asn {% if be_cnf.filter_not_asn | length > 0 %}var(txn.geoip_asn) -i (be_cnf.filter_not_asn | ensure_list).join(' '){% else %}always_false{% endif %}
+    acl {{ be_name }}_filter_asn {% if be_cnf.filter_asn | length > 0 %}var(txn.geoip_asn) -m str -i {{ be_cnf.filter_asn | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
+    acl {{ be_name }}_filter_not_asn {% if be_cnf.filter_not_asn | length > 0 %}var(txn.geoip_asn) -m str -i {{ be_cnf.filter_not_asn | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
 {%     else %}
     acl {{ be_name }}_filter_asn always_true
     acl {{ be_name }}_filter_not_asn always_false

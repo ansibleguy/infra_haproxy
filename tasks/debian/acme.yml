@@ -1,0 +1,171 @@
+---
+
+- name: HAProxy | ACME | Install Dependencies
+  ansible.builtin.apt:
+    pkg: ['curl', 'sed', 'grep', 'sendmail']
+    state: present
+
+- name: HAProxy | ACME | Creating service user
+  ansible.builtin.user:
+    name: "{{ HAPROXY_HC.user_acme }}"
+    shell: '/usr/sbin/nologin'
+    comment: 'HAProxy ACME Serviceuser'
+
+- name: HAProxy | ACME | Create ACME directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ HAPROXY_HC.user_acme }}"
+    group: 'haproxy'
+    mode: 0750
+  loop:
+    - "{{ HAPROXY_HC.path.acme }}"
+    - "{{ HAPROXY_HC.path.acme_certs }}"
+    - "{{ HAPROXY_HC.path.acme_config }}"
+
+- name: HAProxy | ACME | Checking if ACME script exists
+  ansible.builtin.stat:
+    path: "{{ HAPROXY_HC.path.acme_script }}"
+  register: acme_script
+
+- name: HAProxy | ACME | Download ACME script
+  ansible.builtin.unarchive:
+    src: "{{ HAPROXY_HC.url.acme_script }}"
+    dest: '/tmp/haproxy'
+    remote_src: yes
+    extra_opts: ['--strip-components=1']
+    mode: 0750
+  when: not acme_script.stat.exists or force_update | bool
+
+- name: HAProxy | ACME | Move ACME script
+  ansible.builtin.copy:
+    src: "/tmp/haproxy/{{ HAPROXY_HC.path.acme_script_src }}"
+    remote_src: yes
+    dest: "{{ HAPROXY_HC.path.acme_script }}"
+    owner: 'root'
+    group: "{{ HAPROXY_HC.user_acme }}"
+    mode: 0750
+  when: not acme_script.stat.exists or force_update | bool
+
+- name: HAProxy | ACME | Testing
+  ansible.builtin.command: "bash {{ HAPROXY_HC.path.acme_script }} --version"
+  changed_when: false
+  when: not acme_script.stat.exists or force_update | bool
+
+- name: HAProxy | ACME | Config
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.infra_haproxy
+
+      # see: https://github.com/dehydrated-io/dehydrated/blob/master/docs/examples/config
+
+      BASEDIR="{{ HAPROXY_HC.path.acme }}"
+      CERTDIR="{{ HAPROXY_HC.path.acme_certs_raw }}"
+      DOMAINS_TXT="{{ HAPROXY_HC.path.acme_config }}/domains.txt"
+      WELLKNOWN="{{ HAPROXY_HC.path.acme_challenges }}"
+      CONTACT_EMAIL="{{ HAPROXY_CONFIG.acme.email }}"
+      HOOK="{{ HAPROXY_HC.path.acme_script_hook }}"
+      
+      CA="letsencrypt"
+      KEYSIZE="4096"
+      KEY_ALGO="secp384r1"
+      RENEW_DAYS="30"
+      
+      AUTO_CLEANUP="yes"
+      OCSP_FETCH="{{ 'yes' if HAPROXY_CONFIG.acme.ocsp_fetch|bool else 'no' }}"
+      OCSP_MUST_STAPLE="{{ 'yes' if HAPROXY_CONFIG.acme.ocsp_must_staple|bool else 'no' }}"
+    dest: "{{ HAPROXY_HC.path.acme_config }}/config"
+    owner: 'root'
+    group: "{{ HAPROXY_HC.user_acme }}"
+    mode: 0640
+  register: acme_cnf
+
+- name: HAProxy | ACME | Hook script
+  ansible.builtin.template:
+    src: "templates/{{ HAPROXY_HC.path.acme_script_hook }}.j2"
+    dest: "{{ HAPROXY_HC.path.acme_script_hook }}"
+    owner: 'root'
+    group: "{{ HAPROXY_HC.user_acme }}"
+    mode: 0750
+
+- name: HAProxy | ACME | Registering
+  ansible.builtin.command: "{{ HAPROXY_HC.path.acme_script }} --register --accept-terms"
+  become_user: "{{ HAPROXY_HC.user_acme }}"
+  become: true
+  when: acme_cnf.changed
+
+# NOTE: haproxy fails to start if no certificates exist
+- name: HAProxy | ACME | Copy placeholder certificate
+  ansible.builtin.copy:
+    src: 'files{{ HAPROXY_HC.path.acme_certs }}/placeholder.pem'
+    dest: "{{ HAPROXY_HC.path.acme_certs }}/placeholder.pem"
+    owner: "{{ HAPROXY_HC.user_acme }}"
+    group: 'haproxy'
+    mode: 0640
+  no_log: true
+
+- name: HAProxy | ACME | Certificate Config
+  ansible.builtin.template:
+    src: "templates{{ HAPROXY_HC.path.acme_config }}/domains.txt.j2"
+    dest: "{{ HAPROXY_HC.path.acme_config }}/domains.txt"
+    owner: 'root'
+    group: "{{ HAPROXY_HC.user_acme }}"
+    mode: 0640
+  tags: [config]
+  register: acme_cert_cnf
+
+- name: HAProxy | ACME | Update Service/Timer
+  ansible.builtin.template:
+    src: "templates/etc/systemd/system/{{ HAPROXY_HC.service_acme }}.{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ HAPROXY_HC.service_acme }}.{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  loop:
+    - 'service'
+    - 'timer'
+  register: acme_renewal_svc
+
+# NOTE: could be removed if the ACME user was granted privileges to reload the haproxy service and the reload-commands were uncommented in the hook-script
+- name: HAProxy | ACME | Reload Service/Timer
+  ansible.builtin.template:
+    src: "templates/etc/systemd/system/{{ HAPROXY_HC.service_acme_reload }}.{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ HAPROXY_HC.service_acme_reload }}.{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  loop:
+    - 'service'
+    - 'timer'
+  register: acme_reload_svc
+  notify: haproxy-reload
+
+- name: HAProxy | ACME | Systemd Daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: acme_renewal_svc.changed or acme_reload_svc.changed
+
+- name: HAProxy | ACME | Enable & Start Renewal Timer
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_acme }}.timer"
+    enabled: true
+    state: started
+
+- name: HAProxy | ACME | Enable & Start Reload Timer
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_acme_reload }}.timer"
+    enabled: true
+    state: started
+
+- name: HAProxy | ACME | Challenge-Response
+  ansible.builtin.import_tasks: acme_challenge.yml
+  when: HAPROXY_CONFIG.acme.manage_challenge | bool
+
+- name: HAProxy | ACME | Initialize/Renew Certificates (in Background)
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_acme }}.service"
+    state: started
+    no_block: true
+  tags: [config]
+  when: acme_renewal_svc.changed | default(false) or acme_cert_cnf.changed

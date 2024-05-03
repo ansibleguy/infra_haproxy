@@ -9,7 +9,9 @@ backend {{ name }}
     balance {{ cnf.balance }}
 
 {%  if cnf.check | bool and cnf.mode == 'http' %}
+{%    if cnf.check_http | bool %}
     option httpchk
+{%    endif %}
 {%    if cnf.check_uri | default(none, true) is not none %}
     http-check send meth {{ cnf.check_method }} uri {{ cnf.check_uri }}
 {%    endif %}
@@ -39,3 +41,8 @@ backend {{ name }}
 {%  endfor %}
 
 {% endfor %}
+
+{% if HAPROXY_CONFIG.acme.enable | bool and HAPROXY_CONFIG.acme.manage_challenge | bool %}
+backend be_haproxy_acme
+    server haproxy_acme 127.0.0.1:{{ HAPROXY_CONFIG.acme.challenge_port }} check
+{% endif %}

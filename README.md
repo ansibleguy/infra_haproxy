@@ -4,8 +4,6 @@
 
 # Ansible Role - HAProxy Community
 
-**WARNING**: The role is still in early development! **DO NOT TRY TO USE IN PRODUCTION**!
-
 Role to deploy HAProxy (*Focus on the Community Version*)
 
 <a href='https://ko-fi.com/ansible0guy' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy me a coffee' />
@@ -60,14 +58,12 @@ ansible-galaxy install -r requirements.yml
       * Redirect non SSL traffic to SSL if in HTTP mode
       * Logging User-Agent
       * Setting basic security-headers
-    * Backend
-      * Basic Check (*httpchk if in http mode*)
 
 
   * **Default opt-outs**:
     * Stats http listener
     * Frontend
-      * [ACME/LetsEncrypt](https://www.haproxy.com/blog/haproxy-and-let-s-encrypt) (*yet to be implemented*)
+      * [ACME/LetsEncrypt](https://github.com/dehydrated-io/dehydrated)
       * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
 
 
@@ -95,13 +91,13 @@ ansible-galaxy install -r requirements.yml
         **Attribution**: `This product includes GeoLite2 data created by MaxMind, available from <a href="https://www.maxmind.com">https://www.maxmind.com</a>.`
 
 
-* **Info**: If you want to self-manage the databases - the role will assume they are placed at `/var/local/lib/geoip` and be named `asn.mmdb` & `country.mmdb`.
-
-
 * **Info**: For GeoIP Tokens you will have to create a free account:
 
     * **IPInfo**: [Login/Register](https://ipinfo.io/login)
     * **MaxMind**: [Login/Register](https://www.maxmind.com/en/account/login) - Set the `token` to `<ACCOUNT>:<LICENSE>`
+
+
+* **Info**: If you want to self-manage the GeoIP-databases (*not recommended*) - the role will assume they are placed at `/var/local/lib/geoip` and be named `asn.mmdb` & `country.mmdb`.
 
 
 * **Info**: You can test the [GeoIP Lookup Microservice](https://github.com/superstes/haproxy-geoip) manually by using curl: `curl 'http://127.0.0.1:10069/?lookup=country&ip=1.1.1.1'`
@@ -120,13 +116,19 @@ ansible-galaxy install -r requirements.yml
 
 ```yaml
 haproxy:
+  acme:
+    enable: true
+    email: 'webmaster@template.ansibleguy.net'
+
   frontends:
     fe_web:
       bind: ['[::]:80 v4v6', '[::]:443 v4v6 ssl']
-      acme: true
-      acme_domains: ['app.template.ansibleguy.net']
+      acme:
+        enable: true
+        domains: ['app.template.ansibleguy.net']
       
-      route:
+      
+      routes:
         be_intern:
           filter_ip: '10.0.0.0/8'
           filter_not_ip: '10.100.0.0/24'
@@ -135,7 +137,9 @@ haproxy:
 
   backends:
     be_intern:
-      
+      servers:
+        - 'srv-1 192.168.10.11:80'
+        - 'srv-2 192.168.10.12:80'
 
     be_fallback:
       lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
@@ -146,15 +150,19 @@ Define the config as needed:
 ```yaml
 haproxy:
   version: '2.8'
+  acme:
+    enable: true
+    email: 'webmaster@template.ansibleguy.net'
 
   # FRONTENDS
   frontends:
     fe_web:
       bind: ['[::]:80 v4v6', '[::]:443 v4v6 ssl']
-      acme: true
-      acme_domains: ['app.template.ansibleguy.net']  # domains from routes will also be added
+      acme:
+        enable: true
+        domains: ['app.template.ansibleguy.net']  # domains from routes will also be added
 
-      route:
+      routes:
         be_app01:
           domains: ['app01.template.ansibleguy.net', 'hello.template.ansibleguy.net']
 
@@ -170,14 +178,13 @@ haproxy:
       default_backend: 'be_db'
 
     fe_restricted:
-      bind: ['[::]:80 v4v6', '[::]:443 v4v6 ssl']
-      acme: true
+      bind: ['[::]:8080 v4v6', '[::]:8443 v4v6 ssl /etc/myapp/mycert.pem']
 
       geoip:
         enable: true
 
-      backends:
-        be_app01:
+      routes:
+        be_app02:
           filter_country: ['AT', 'DE', 'CH']
           # filter_ip: ['10.0.0.0/8']
           domains: ['app01.template.ansibleguy.net', 'hello.template.ansibleguy.net']
@@ -198,6 +205,13 @@ haproxy:
 
       check_uri: '/health'
       check_expect: 'status 200'
+
+    be_app02:
+      ssl: true
+      ssl_verify: 'none'  # default; example: 'required ca-file /etc/ssl/certs/my_ca.crt verifyhost host01.intern'
+      servers:
+        - 'app02-1 10.0.1.1:443'
+        - 'app02-2 10.0.1.2:443'
 
     be_db:
       mode: 'tcp'
@@ -253,7 +267,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml
 There are also some useful **tags** available:
 * install
 * config
-* ssl
+* ssl or acme
 * geoip
 
 To debug errors - you can set the 'debug' variable at runtime:
