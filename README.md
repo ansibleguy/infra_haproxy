@@ -89,7 +89,7 @@ ansible-galaxy install -r requirements.yml
       * SSL Fingerprinting ([JA3](https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967/?ref=waf.ninja))
 
     * Backend
-      * Sticky sessions (*use same backend )
+      * Sticky sessions
       * Blocking TRACE & CONNECT methods
 
 ----
@@ -155,6 +155,13 @@ ansible-galaxy install -r requirements.yml
 
 
 ## Usage
+
+### Examples
+
+Here some detailed config examples and their results:
+
+* [Example ACME](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleAcme.md)
+* [Example GeoIP](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleGeoIP.md)
 
 ### Config
 

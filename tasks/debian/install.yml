@@ -35,6 +35,7 @@
   check_mode: true
   register: haproxy_pkg
 
+# NOTE: might not work if upgrade for multiple hosts should be performed in one run
 - name: "HAProxy | Install | Ask user"
   ansible.builtin.pause:
     prompt: "Do you want to install/update the HAProxy package?"
