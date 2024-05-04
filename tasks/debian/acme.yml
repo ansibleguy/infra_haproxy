@@ -1,8 +1,13 @@
 ---
 
+# see: https://github.com/dehydrated-io/dehydrated/blob/v0.7.1/dehydrated#L261
+# NOTE: tail, head, awk, diff, cut, mktemp => coreutils
 - name: HAProxy | ACME | Install Dependencies
   ansible.builtin.apt:
-    pkg: ['curl', 'sed', 'grep', 'sendmail']
+    pkg: [
+      'grep', 'sed', 'curl',
+      'bsdmainutils'  # hexdump
+    ]
     state: present
 
 - name: HAProxy | ACME | Creating service user
@@ -22,6 +27,7 @@
     - "{{ HAPROXY_HC.path.acme }}"
     - "{{ HAPROXY_HC.path.acme_certs }}"
     - "{{ HAPROXY_HC.path.acme_config }}"
+    - '/tmp/haproxy'
 
 - name: HAProxy | ACME | Checking if ACME script exists
   ansible.builtin.stat:
@@ -66,7 +72,7 @@
       WELLKNOWN="{{ HAPROXY_HC.path.acme_challenges }}"
       CONTACT_EMAIL="{{ HAPROXY_CONFIG.acme.email }}"
       HOOK="{{ HAPROXY_HC.path.acme_script_hook }}"
-      CA="letsencrypt"
+      CA="{{ HAPROXY_CONFIG.acme.ca }}"
       KEYSIZE="4096"
       KEY_ALGO="secp384r1"
       RENEW_DAYS="30"
@@ -126,7 +132,7 @@
     - 'timer'
   register: acme_renewal_svc
 
-# NOTE: could be removed if the ACME user was granted privileges to reload the haproxy service and the reload-commands were uncommented in the hook-script
+# NOTE: to reload certs; could be removed if the ACME user was granted privileges to reload the haproxy service and the reload-commands were uncommented in the hook-script
 - name: HAProxy | ACME | Reload Service/Timer
   ansible.builtin.template:
     src: "templates/etc/systemd/system/{{ HAPROXY_HC.service_acme_reload }}.{{ item }}.j2"

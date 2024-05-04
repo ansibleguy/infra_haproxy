@@ -1,0 +1,112 @@
+---
+
+- name: Verify All
+  hosts: grp_targets
+  gather_facts: false
+  tasks:
+    - name: Checking that services are running and enabled
+      ansible.builtin.systemd:
+        name: 'haproxy.service'
+        enabled: true
+        state: started
+      check_mode: true
+      register: svc_test
+      failed_when: svc_test.changed
+
+    - name: Make sure the service survives a restart
+      ansible.builtin.systemd:
+        name: 'haproxy.service'
+        state: restarted
+      changed_when: false
+
+    - name: Checking port 80
+      ansible.builtin.shell: |
+        set -o pipefail
+        netstat -tulpn | grep -q :::80
+      changed_when: false
+      args:
+        executable: '/bin/bash'
+
+- name: Verify Basic Setup
+  hosts: test-ag-haproxy-base
+  gather_facts: false
+  tasks:
+    - name: Checking stats port 8404
+      ansible.builtin.shell: |
+        set -o pipefail
+        netstat -tulpn | grep -q 127.0.0.1:8404
+      changed_when: false
+      args:
+        executable: '/bin/bash'
+
+- name: Verify ACME Setup
+  hosts: test-ag-haproxy-acme
+  gather_facts: false
+  tasks:
+    - name: Checking that services are running and enabled
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      check_mode: true
+      register: svc_test
+      loop:
+        - 'haproxy-acme.timer'
+        - 'haproxy-acme-reload.timer'
+      failed_when: svc_test.changed
+
+    - name: Make sure the timed services work
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+      changed_when: false
+      loop:
+        - 'haproxy-acme.service'
+        - 'haproxy-acme-reload.service'
+
+    - name: Checking ports
+      ansible.builtin.shell: |
+        set -o pipefail
+        netstat -tulpn | grep -q {{ item.b }}
+      changed_when: false
+      args:
+        executable: '/bin/bash'
+      loop:
+        - {b: ':::443', c: 'https'}
+        - {b: '127.0.0.1:8405', c: 'acme challenge-response'}
+
+- name: Verify GeoIP Setup
+  hosts: test-ag-haproxy-geoip
+  gather_facts: false
+  tasks:
+    - name: Checking that services are running and enabled
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      check_mode: true
+      register: svc_test
+      loop:
+        - 'haproxy-geoip-lookup.service'
+        - 'haproxy-geoip-update.timer'
+      failed_when: svc_test.changed
+
+    - name: Make sure the lookup service survives restart
+      ansible.builtin.systemd:
+        name: 'haproxy-geoip-lookup.service'
+        state: restarted
+      changed_when: false
+
+    - name: Make sure the timed service works
+      ansible.builtin.systemd:
+        name: 'haproxy-geoip-update.service'
+        state: started
+      changed_when: false
+
+    - name: Checking port of geoip lookup service (8406)
+      ansible.builtin.shell: |
+        set -o pipefail
+        netstat -tulpn | grep -q 127.0.0.1:8406
+      changed_when: false
+      args:
+        executable: '/bin/bash'

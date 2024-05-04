@@ -1,19 +1,31 @@
 ---
 
 - name: HAProxy | Install
-  ansible.builtin.import_tasks: debian/install.yml
+  ansible.builtin.include_tasks: debian/install.yml
   tags: [install]
+  args:
+    apply:
+      tags: [install]
 
 - name: HAProxy | SSL/TLS Certificates
-  ansible.builtin.import_tasks: debian/acme.yml
+  ansible.builtin.include_tasks: debian/acme.yml
   when: HAPROXY_CONFIG.acme.enable | bool
   tags: [ssl, acme]
+  args:
+    apply:
+      tags: [ssl, acme]
 
 - name: HAProxy | GeoIP
-  ansible.builtin.import_tasks: debian/geoip.yml
+  ansible.builtin.include_tasks: debian/geoip.yml
   when: HAPROXY_CONFIG.geoip.enable | bool
   tags: [geoip]
+  args:
+    apply:
+      tags: [geoip]
 
 - name: HAProxy | Config
-  ansible.builtin.import_tasks: debian/config.yml
+  ansible.builtin.include_tasks: debian/config.yml
   tags: [config]
+  args:
+    apply:
+      tags: [config]

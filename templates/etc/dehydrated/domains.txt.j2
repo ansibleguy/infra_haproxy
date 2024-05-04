@@ -1,20 +1,20 @@
 # {{ ansible_managed }}
 
-{% if HAPROXY_CONFIG.acme.domains | ensure_list | length > 0 %}
-{{ HAPROXY_CONFIG.acme.domains | ensure_list | join(' ') }} > base
+{% if HAPROXY_CONFIG.acme.domains | default([]) | ensure_list | length > 0 %}
+{{ HAPROXY_CONFIG.acme.domains | default([]) | ensure_list | join(' ') }} > base
 {% endif %}
 
 {% for fe_name, fe_cnf_user in HAPROXY_CONFIG.frontends.items() %}
 {%   set fe_cnf = defaults_frontend | combine(fe_cnf_user, recursive=true) %}
 # FRONTEND: {{ fe_name }}
-{%   if fe_cnf.acme.domains | ensure_list | length > 0 %}
-{{ fe_cnf.acme.domains | ensure_list | join(' ') }} > {{ fe_name | safe_key }}
+{%   if fe_cnf.acme.domains | default([]) | ensure_list | length > 0 %}
+{{ fe_cnf.acme.domains | default([]) | ensure_list | join(' ') }} > {{ fe_name | safe_key }}
 {%   endif %}
 {%   for be_name, be_cnf_user in fe_cnf.routes.items() %}
 {%     set be_cnf = defaults_backend | combine(be_cnf_user, recursive=true) %}
 ## BACKEND: {{ be_name }}
-{%   if be_cnf.domains | ensure_list | length > 0 %}
-{{ be_cnf.domains | ensure_list | join(' ') }} > {{ fe_name | safe_key }}-{{ be_name | safe_key }}
+{%   if be_cnf.domains | default([]) | ensure_list | length > 0 %}
+{{ be_cnf.domains | default([]) | ensure_list | join(' ') }} > {{ fe_name | safe_key }}-{{ be_name | safe_key }}
 {%   endif %}
 {%   endfor %}
 {% endfor %}

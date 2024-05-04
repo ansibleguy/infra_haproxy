@@ -16,6 +16,7 @@
   loop:
     - "{{ HAPROXY_HC.path.map }}"
     - "{{ HAPROXY_HC.path.lua }}"
+    - '/tmp/haproxy'
 
 - name: HAProxy | GeoIP | Touch map files
   ansible.builtin.file:
@@ -108,6 +109,7 @@
     group: 'root'
     mode: 0644
   register: geoip_lookup_svc
+  notify: HAProxy-geoip-restart
 
 - name: HAProxy | GeoIP | Systemd Daemon-reload
   ansible.builtin.systemd:

@@ -11,6 +11,8 @@
     set -o pipefail
     curl https://haproxy.debian.net/bernat.debian.org.gpg |
     gpg --dearmor > /usr/share/keyrings/haproxy.debian.net.gpg
+  args:
+    executable: '/bin/bash'
   changed_when: false
   tags: [skip_ansible_lint]  # lazy - open to PRs
 
@@ -22,11 +24,32 @@
     dest: '/etc/apt/sources.list.d/haproxy-community.list'
     mode: 0644
 
-- name: HAProxy | Install
+- name: "HAProxy | Install | APT Update"
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: "HAProxy | Install | Checking for Version {{ HAPROXY_CONFIG.version }}"
   ansible.builtin.apt:
     pkg: "haproxy={{ HAPROXY_CONFIG.version }}*"
     state: present
-    update_cache: true
+  check_mode: true
+  register: haproxy_pkg
+
+- name: "HAProxy | Install | Ask user"
+  ansible.builtin.pause:
+    prompt: "Do you want to install/update the HAProxy package?"
+  register: haproxy_pkg_prompt
+  when:
+    - not no_prompts | bool
+    - haproxy_pkg.changed
+
+- name: "HAProxy | Install | Version {{ HAPROXY_CONFIG.version }}"
+  ansible.builtin.apt:
+    pkg: "haproxy={{ HAPROXY_CONFIG.version }}*"
+    state: present
+  when:
+    - haproxy_pkg.changed
+    - no_prompts | bool or haproxy_pkg_prompt.user_input | bool
 
 - name: HAProxy | Install | Create config directory
   ansible.builtin.file:

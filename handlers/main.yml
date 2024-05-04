@@ -9,3 +9,8 @@
   ansible.builtin.systemd:
     name: 'haproxy.service'
     state: reloaded
+
+- name: HAProxy-geoip-restart
+  ansible.builtin.systemd:
+    name: "{{ HAPROXY_HC.service_geoip_lookup }}"
+    state: restarted

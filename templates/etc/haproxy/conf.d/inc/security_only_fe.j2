@@ -1,3 +1,9 @@
+{% if cnf.security.headers | bool %}
+    # Security headers
+{%   for header, value in defaults_security_headers.items() %}
+    http-response set-header {{ header }} "{{ value }}"
+{%   endfor %}
+{% endif %}
 {% if cnf.security.fingerprint_ssl | bool %}
     # SSL fingerprint
     http-request set-var(txn.fp_ssl_p1) ssl_fc_cipherlist_bin(1),be2dec(-,2)
@@ -6,6 +12,5 @@
     http-request set-var(txn.fp_ssl_p4) ssl_fc_ecformats_bin,be2dec(-,1)
     http-request set-var(txn.fingerprint_ssl_raw) "ssl_fc_protocol_hello_id,concat(',',txn.fp_ssl_p1),concat(',',txn.fp_ssl_p2),concat(',',txn.fp_ssl_p3),concat(',',txn.fp_ssl_p4)"
     http-request set-var(txn.fingerprint_ssl) var(txn.fingerprint_ssl_raw),digest(md5),hex,lower
-    http-request capture var(txn.fingerprint_ssl_raw) len 1000
     http-request capture var(txn.fingerprint_ssl) len 32
 {% endif %}

@@ -1,0 +1,77 @@
+---
+
+dependency:
+  name: galaxy
+#  options:
+#    requirements-file: 'requirements.yml'
+driver:
+  name: docker
+platforms:
+  - name: test-ag-haproxy-base
+    docker_networks:
+      - name: 'test-ag-hap'
+        ipam_config:
+          - subnet: '192.168.18.0/24'
+            gateway: '192.168.18.254'
+    networks:
+      - name: 'test-ag-hap'
+        ipv4_address: '192.168.18.2'
+    groups: [grp_targets]
+    docker_host: 'tcp://molecule-docker.local:2375'
+    image: 'ansible0guy/molecule:debian-latest'
+    tmpfs: ['/tmp', '/run', '/run/lock']
+    privileged: true
+    command: '/sbin/init'
+
+  - name: test-ag-haproxy-acme
+    networks:
+      - name: 'test-ag-hap'
+        ipv4_address: '192.168.18.3'
+    groups: [grp_targets]
+    docker_host: 'tcp://molecule-docker.local:2375'
+    image: 'ansible0guy/molecule:debian-latest'
+    tmpfs: ['/tmp', '/run', '/run/lock']
+    privileged: true
+    command: '/sbin/init'
+
+  - name: test-ag-haproxy-geoip
+    networks:
+      - name: 'test-ag-hap'
+        ipv4_address: '192.168.18.4'
+    groups: [grp_targets]
+    docker_host: 'tcp://molecule-docker.local:2375'
+    image: 'ansible0guy/molecule:debian-latest'
+    tmpfs: ['/tmp', '/run', '/run/lock']
+    privileged: true
+    command: '/sbin/init'
+
+  - name: test-ag-haproxy-waf
+    networks:
+      - name: 'test-ag-hap'
+        ipv4_address: '192.168.18.5'
+    groups: [grp_targets]
+    docker_host: 'tcp://molecule-docker.local:2375'
+    image: 'ansible0guy/molecule:debian-latest'
+    tmpfs: ['/tmp', '/run', '/run/lock']
+    privileged: true
+    command: '/sbin/init'
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      remote_tmp: '/tmp'
+verifier:
+  name: ansible
+scenario:
+  name: default
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify  # MUST NOT make changes
+    - idempotence
+    - check
+    - destroy

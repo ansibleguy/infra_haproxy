@@ -21,11 +21,11 @@
     http-request capture var(txn.geoip_asn) len 10
 {% endif %}
 
-{% if cnf.geoip.asn_name | bool %}
+{% if cnf.geoip.as_name | bool %}
     ## GEOIP ASN-NAME
-    acl geoip_asname_in_map src,ipmask(24,48),map_ip({{ HAPROXY_HC.path.map_geoip_as_name }}) -m found
-    http-request set-var(txn.geoip_asname) src,ipmask(24,48),map({{ HAPROXY_HC.path.map_geoip_as_name }}) if !private_nets geoip_asname_in_map
-    http-request lua.lookup_geoip_asname if !{ var(txn.geoip_asname) -m found }
-    http-request set-map({{ HAPROXY_HC.path.map_geoip_as_name }}) %[src,ipmask(24,48)] %[var(txn.geoip_asname)] if !private_nets !geoip_asname_in_map
-    http-request capture var(txn.geoip_asname) len 50
+    acl geoip_as_name_in_map src,ipmask(24,48),map_ip({{ HAPROXY_HC.path.map_geoip_as_name }}) -m found
+    http-request set-var(txn.geoip_as_name) src,ipmask(24,48),map({{ HAPROXY_HC.path.map_geoip_as_name }}) if !private_nets geoip_as_name_in_map
+    http-request lua.lookup_geoip_as_name if !{ var(txn.geoip_as_name) -m found }
+    http-request set-map({{ HAPROXY_HC.path.map_geoip_as_name }}) %[src,ipmask(24,48)] %[var(txn.geoip_as_name)] if !private_nets !geoip_as_name_in_map
+    http-request capture var(txn.geoip_as_name) len 50
 {% endif %}

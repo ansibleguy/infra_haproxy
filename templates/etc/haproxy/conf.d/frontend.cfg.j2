@@ -7,19 +7,15 @@ frontend {{ name }}
     mode {{ cnf.mode }}
 {%   for bind in cnf.bind | ensure_list %}
 {%     if cnf.acme.enable | bool %}
-    bind {{ bind | regex_replace('ssl$', 'ssl crt ' + HAPROXY_HC.path.acme_certs) }}
+    bind {{ bind | regex_replace('ssl$', 'ssl crt ' + HAPROXY_HC.path.acme_certs) }}{% if cnf.mode == 'http' and 'ssl' in bind and cnf.http2 | bool %} alpn h2,http/1.1{% endif +%}
 {%     else %}
-    bind {{ bind }}
+    bind {{ bind }}{% if cnf.mode == 'http' and 'ssl' in bind and cnf.http2 | bool %} alpn h2,http/1.1{% endif +%}
 {%     endif %}
 {%   endfor %}
 
 {%   if cnf.mode == 'http' %}
 {%     if cnf.ssl_redirect | bool and 'ssl' in (cnf.bind | join('-')) %}
-{%       if cnf.acme.enable | bool %}
     http-request redirect scheme https code 301 if !{ ssl_fc } !{ path_beg -i /.well-known/acme-challenge/ }
-{%       else %}
-    http-request redirect scheme https code 301 unless { ssl_fc }
-{%       endif %}
 {%     endif %}
 {%   endif %}
 
@@ -28,12 +24,6 @@ frontend {{ name }}
 {%   endif %}
 
 {% if cnf.mode == 'http' %}
-{%   if cnf.security.headers | bool %}
-{%     for header, value in defaults_security_headers.items() %}
-    http-response set-header {{ header }} "{{ value }}"
-{%     endfor %}
-{%   endif %}
-
 {%   include "inc/security.j2" %}
 {%   include "inc/security_only_fe.j2" %}
 {% endif %}
@@ -78,8 +68,8 @@ frontend {{ name }}
     acl {{ be_name }}_filter_not_country always_false
 {%     endif %}
 {%     if cnf.geoip.asn | bool %}
-    acl {{ be_name }}_filter_asn {% if be_cnf.filter_asn | length > 0 %}var(txn.geoip_asn) -m str -i {{ be_cnf.filter_asn | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
-    acl {{ be_name }}_filter_not_asn {% if be_cnf.filter_not_asn | length > 0 %}var(txn.geoip_asn) -m str -i {{ be_cnf.filter_not_asn | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
+    acl {{ be_name }}_filter_asn {% if be_cnf.filter_asn | length > 0 %}var(txn.geoip_asn) -m int -i {{ be_cnf.filter_asn | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
+    acl {{ be_name }}_filter_not_asn {% if be_cnf.filter_not_asn | length > 0 %}var(txn.geoip_asn) -m int -i {{ be_cnf.filter_not_asn | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
 {%     else %}
     acl {{ be_name }}_filter_asn always_true
     acl {{ be_name }}_filter_not_asn always_false

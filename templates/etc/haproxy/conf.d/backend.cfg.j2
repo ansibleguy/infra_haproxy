@@ -52,17 +52,17 @@ backend {{ name }}
 {%  endif %}
 
 {%  for server in cnf.servers | ensure_list %}
-    server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}{% if cnf.mode == 'http' and cnf.sticky | bool %} cookie {{ cnf.sticky_http.cookie }}{{ loop.index }}{% endif %}
+    server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}{% if cnf.mode == 'http' and cnf.sticky | bool %} cookie {{ cnf.sticky_http.cookie }}{{ loop.index }}{% endif +%}
 {%  endfor %}
 
 {% endfor %}
 
-{% if HAPROXY_CONFIG.acme.enable | bool and HAPROXY_CONFIG.acme.manage_challenge | bool %}
+{% if HAPROXY_CONFIG.acme.enable | bool %}
 backend be_haproxy_acme
     server haproxy_acme 127.0.0.1:{{ HAPROXY_CONFIG.acme.challenge_port }} check
 {% endif %}
 
 {% if HAPROXY_CONFIG.geoip.enable | bool %}
 backend be_haproxy_geoip
-    server haproxy_geoip 127.0.0.1:{{ HAPROXY_HC.geoip_lookup_port }} check
+    server haproxy_geoip 127.0.0.1:{{ HAPROXY_CONFIG.geoip.lookup_port }} check
 {% endif %}

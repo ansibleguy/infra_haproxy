@@ -58,6 +58,11 @@ ansible-galaxy install -r requirements.yml
 * **Package installation**
   * Repository dependencies (_minimal_)
   * HAProxy
+  * GeoIP
+    * [Lookup Service Binary](https://github.com/superstes/geoip-lookup-service)
+  * ACME
+    * [Dependencies](https://github.com/dehydrated-io/dehydrated/blob/v0.7.1/dehydrated#L261)
+    * Nginx light for challenge-response handling
 
 
 * **Configuration**
@@ -72,9 +77,6 @@ ansible-galaxy install -r requirements.yml
         * Redirect non SSL traffic to SSL
         * Logging User-Agent
         * Setting basic security-headers
-
-    * Backend
-      * HTTP mode
         * Blocking TRACE & CONNECT methods
 
 
@@ -84,11 +86,11 @@ ansible-galaxy install -r requirements.yml
       * [ACME/LetsEncrypt](https://github.com/dehydrated-io/dehydrated)
       * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
       * Blocking of well-known Script-Bots
-      * Blocking TRACE & CONNECT methods
       * SSL Fingerprinting ([JA3](https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967/?ref=waf.ninja))
 
     * Backend
       * Sticky sessions (*use same backend )
+      * Blocking TRACE & CONNECT methods
 
 ----
 
@@ -110,19 +112,18 @@ ansible-galaxy install -r requirements.yml
     `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
 
 
-* **Info:** A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/0_hardcoded.yml) for the list of bots that are blocked.
+* **Info:** A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/2_waf.yml) for the list of bots that are blocked.
 
 
 * **Info:** You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
 
 
+* **Info:** Check out the [Fingerprinting Docs](https://github.com/ansibleguy/infra_haproxy/blob/latest/Fingerprinting.md) for detailed information on how you might want to track clients.
+
+
 * **Info:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
 
 
-* **Info:** If you enable `fingerprint_ssl` you can reference it using the variables:
-
-    * `var(txn.fingerprint_ssl)` => MD5 hash of JA3 fingerprint
-    * `var(txn.fingerprint_ssl_raw)` => raw JA3 fingerprint
 
 ### GeoIP
 
@@ -289,9 +290,9 @@ haproxy:
         default: 'http-request redirect code 301 location https://github.com/ansibleguy'
 
   # GENERAL
-  stats:  # enable stats http page
-    http: true
-    bind: '127.0.0.1:8404'
+  stats:
+    enable: true  # enable stats http listener
+    bind: '127.0.0.1:8404'  # default
 
   geoip:
     enable: true

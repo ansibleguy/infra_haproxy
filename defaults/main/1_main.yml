@@ -9,10 +9,11 @@ defaults_haproxy:
   version: '2.8'
   frontends: {}
   backends: {}
+  waf: {}
 
   # see: https://www.haproxy.com/blog/exploring-the-haproxy-stats-page
   stats:
-    http: false
+    enable: false  # enable http listener for haproxy stats
     bind: '127.0.0.1:8404'
     refresh: '10s'
     admin: false
@@ -21,18 +22,20 @@ defaults_haproxy:
     pwd: 'monitor'
     realm: 'Authorized Personal Only'
 
-  acme:
+  acme:  # see also: https://github.com/dehydrated-io/dehydrated/blob/master/docs/examples/config
     enable: false
     email:
     ocsp_must_staple: false
     ocsp_fetch: false
     manage_challenge: true  # set-up nginx-light to handle acme challenge-responses
     challenge_port: 8405  # port the webserver for challenge-responses listens on
+    ca: 'letsencrypt'
     domains: []
 
   geoip:
     enable: false
     manage_db: true
+    lookup_port: 8406
     provider: 'ipinfo'
     token:
 
@@ -72,6 +75,7 @@ defaults_haproxy:
 
 defaults_frontend:
   mode: 'http'
+  http2: true  # appends 'alpn h2,http/1.1' to bind
   bind: ['[::]:80 v4v6']
   # ipv4 only: ':80'
   # ssl with acme enabled: ':443 ssl'
@@ -83,25 +87,25 @@ defaults_frontend:
   ssl_redirect: true
   security:
     headers: true
-    fingerprint_ssl: true  # create and log the JA3 fingerprint of clients
+    fingerprint_ssl: false  # create and log the JA3 fingerprint of clients
 
     restrict_methods: false
     allow_only_methods: ['HEAD', 'GET', 'POST']
     # if 'restrict_methods' is disabled - this will still deny 'TRACE' & 'CONNECT' as they might open your server/services up to attacks
-    deny_dangerous_methods: false
+    deny_dangerous_methods: true
 
     block_script_bots: false
     block_bad_crawler_bots: false
-    block_status_code: 425
 
   log:
     user_agent: true
 
   geoip:
     enable: false
+    # what attributes to look-up:
     country: true
     asn: true
-    asn_name: false
+    as_name: false
 
   lines: {}  # raw config lines to add - section to lines mapping to make resulting config human-readable
 
@@ -141,11 +145,10 @@ defaults_backend:
     restrict_methods: false
     allow_only_methods: ['HEAD', 'GET', 'POST']
     # if 'restrict_methods' is disabled - this will still deny 'TRACE' & 'CONNECT' as they might open your server/services up to attacks
-    deny_dangerous_methods: true
+    deny_dangerous_methods: false
 
     block_script_bots: false
     block_bad_crawler_bots: false
-    block_status_code: 425
 
   # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
   #   more complex ones should be implemented by supplying the raw config-lines

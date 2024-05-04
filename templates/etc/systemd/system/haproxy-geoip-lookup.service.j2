@@ -8,7 +8,7 @@ Documentation=https://github.com/ansibleguy/infra_haproxy
 
 [Service]
 Type=simple
-ExecStart={{ HAPROXY_HC.path.geoip_bin }} -l 127.0.0.1 -p {{ HAPROXY_HC.geoip_lookup_port }} -t {{ HAPROXY_CONFIG.geoip.provider }} -plain -country {{ HAPROXY_HC.path.geoip_db }}/country.mmdb -asn {{ HAPROXY_HC.path.geoip_db }}/asn.mmdb
+ExecStart={{ HAPROXY_HC.path.geoip_bin }} -l 127.0.0.1 -p {{ HAPROXY_CONFIG.geoip.lookup_port }} -t {{ HAPROXY_CONFIG.geoip.provider }} -plain -country {{ HAPROXY_HC.path.geoip_db }}/country.mmdb -asn {{ HAPROXY_HC.path.geoip_db }}/asn.mmdb
 
 User={{ HAPROXY_HC.user_geoip }}
 Group={{ HAPROXY_HC.user_geoip }}
