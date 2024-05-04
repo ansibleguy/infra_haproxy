@@ -61,3 +61,8 @@ backend {{ name }}
 backend be_haproxy_acme
     server haproxy_acme 127.0.0.1:{{ HAPROXY_CONFIG.acme.challenge_port }} check
 {% endif %}
+
+{% if HAPROXY_CONFIG.geoip.enable | bool %}
+backend be_haproxy_geoip
+    server haproxy_geoip 127.0.0.1:{{ HAPROXY_HC.geoip_lookup_port }} check
+{% endif %}
