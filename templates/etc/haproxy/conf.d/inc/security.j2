@@ -7,20 +7,19 @@
 
 {% if cnf.security.block_script_bots | bool %}
     # block well-known script-bots
-    http-request deny status {{ HAPROXY_WAF.block_code }} default-errorfiles if !{ req.fhdr(User-Agent) -m found }
 {%   if HAPROXY_WAF.user_agents.script.full | length > 0 %}
-  http-request deny status {{ HAPROXY_WAF.block_code }} default-errorfiles if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_WAF.user_agents.script.full | ensure_list | join(' ') }} }
+  http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_WAF.user_agents.script.full | ensure_list | join(' ') }} }
 {%   endif %}
 {%   if HAPROXY_WAF.user_agents.script.sub | length > 0 %}
-    http-request deny status {{ HAPROXY_WAF.block_code }} default-errorfiles if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.script.sub | ensure_list | join(' ') }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.script.sub | ensure_list | join(' ') }} }
 {%   endif %}
 {% endif %}
 {% if cnf.security.block_bad_crawler_bots | bool %}
     # block well-known bad-crawler-bots
 {%   if HAPROXY_WAF.user_agents.bad_crawlers.full | length > 0 %}
-    http-request deny status {{ HAPROXY_WAF.block_code }} default-errorfiles if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_WAF.user_agents.bad_crawlers.full | ensure_list | join(' ') }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m str -i {{ HAPROXY_WAF.user_agents.bad_crawlers.full | ensure_list | join(' ') }} }
 {%   endif %}
 {%   if HAPROXY_WAF.user_agents.bad_crawlers.sub | length > 0 %}
-    http-request deny status {{ HAPROXY_WAF.block_code }} default-errorfiles if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
 {%   endif %}
 {% endif %}

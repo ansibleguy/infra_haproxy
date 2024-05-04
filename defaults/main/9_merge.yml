@@ -2,3 +2,5 @@
 
 HAPROXY_CONFIG: "{{ defaults_haproxy | combine(haproxy, recursive=true, list_merge='prepend') }}"
 HAPROXY_WAF: "{{ defaults_waf | combine(HAPROXY_CONFIG.waf, recursive=true) }}"
+
+BLOCK_ERRORFILE: "{{ 'default-errorfiles' if HAPROXY_WAF.block_errorfile | bool else '' }}"

@@ -53,106 +53,6 @@ ansible-galaxy install -r requirements.yml
 
 ----
 
-## Functionality
-
-* **Package installation**
-  * Repository dependencies (_minimal_)
-  * HAProxy
-  * GeoIP
-    * [Lookup Service Binary](https://github.com/superstes/geoip-lookup-service)
-  * ACME
-    * [Dependencies](https://github.com/dehydrated-io/dehydrated/blob/v0.7.1/dehydrated#L261)
-    * Nginx light for challenge-response handling
-
-
-* **Configuration**
-
-  * **Default config**:
-    * Globals/Defaults - as seen in default installations
-
-
-  * **Default opt-ins**:
-    * Frontend
-      * HTTP mode
-        * Redirect non SSL traffic to SSL
-        * Logging User-Agent
-        * Setting basic security-headers
-        * Blocking TRACE & CONNECT methods
-
-
-  * **Default opt-outs**:
-    * Stats http listener
-    * Frontend
-      * [ACME/LetsEncrypt](https://github.com/dehydrated-io/dehydrated)
-      * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
-      * Blocking of well-known Script-Bots
-      * SSL Fingerprinting ([JA3](https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967/?ref=waf.ninja))
-
-    * Backend
-      * Sticky sessions
-      * Blocking TRACE & CONNECT methods
-
-----
-
-## Info
-
-* **Note:** this role currently only supports debian-based systems
-
-
-* **Note:** Most of the role's functionality can be opted in or out.
-
-  For all available options - see the default-config located in [the main defaults-file](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/1_main.yml)!
-
-
-* **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
-
-
-* **Info:** You can easily filter access to backends by using the `filter` and `filter_not` settings:
-
-    `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
-
-
-* **Info:** A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/2_waf.yml) for the list of bots that are blocked.
-
-
-* **Info:** You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
-
-
-* **Info:** Check out the [Fingerprinting Docs](https://github.com/ansibleguy/infra_haproxy/blob/latest/Fingerprinting.md) for detailed information on how you might want to track clients.
-
-
-* **Info:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
-
-
-
-### GeoIP
-
-
-* **Warning**: If you use the auto-provisioned GeoIP databases - make sure your product follows their license agreement:
-
-    * **IPinfo**: [Information](https://ipinfo.io/products/free-ip-database), [CC4 License](https://creativecommons.org/licenses/by-sa/4.0/) (*allows for commercial usage - you need to add an attribution*)
-
-        **Attribution**: `<p>IP address data powered by <a href="https://ipinfo.io">IPinfo</a></p>`
-
-    * **MaxMind**: [Information](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data), [EULA](https://www.maxmind.com/en/geolite2/eula) (*allows for limited commercial usage - you need to add an attribution*)
-
-        **Attribution**: `This product includes GeoLite2 data created by MaxMind, available from <a href="https://www.maxmind.com">https://www.maxmind.com</a>.`
-
-
-* **Info**: For GeoIP Tokens you will have to create a free account:
-
-    * **IPInfo**: [Login/Register](https://ipinfo.io/login)
-    * **MaxMind**: [Login/Register](https://www.maxmind.com/en/account/login) - Set the `token` to `<ACCOUNT>:<LICENSE>`
-
-
-* **Info**: If you want to self-manage the GeoIP-databases (*not recommended*) - the role will assume they are placed at `/var/local/lib/geoip` and be named `asn.mmdb` & `country.mmdb`.
-
-
-* **Info**: You can test the [GeoIP Lookup Microservice](https://github.com/superstes/haproxy-geoip) manually by using curl: `curl 'http://127.0.0.1:10069/?lookup=country&ip=1.1.1.1'`
-
-
-----
-
 
 ## Usage
 
@@ -162,6 +62,7 @@ Here some detailed config examples and their results:
 
 * [Example ACME](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleAcme.md)
 * [Example GeoIP](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleGeoIP.md)
+* [Example WAF](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleWAF.md)
 
 ### Config
 
@@ -322,6 +223,110 @@ You might want to use 'ansible-vault' to encrypt your passwords:
 ```bash
 ansible-vault encrypt_string
 ```
+
+----
+
+## Functionality
+
+* **Package installation**
+  * Repository dependencies (_minimal_)
+  * HAProxy
+  * GeoIP
+    * [Lookup Service Binary](https://github.com/superstes/geoip-lookup-service)
+  * ACME
+    * [Dependencies](https://github.com/dehydrated-io/dehydrated/blob/v0.7.1/dehydrated#L261)
+    * Nginx light for challenge-response handling
+
+
+* **Configuration**
+
+  * **Default config**:
+    * Globals/Defaults - as seen in default installations
+
+
+  * **Default opt-ins**:
+    * Frontend
+      * HTTP mode
+        * Redirect non SSL traffic to SSL
+        * Logging User-Agent
+        * Setting basic security-headers
+        * Blocking TRACE & CONNECT methods
+
+
+  * **Default opt-outs**:
+    * Stats http listener
+    * Frontend
+      * [ACME/LetsEncrypt](https://github.com/dehydrated-io/dehydrated)
+      * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
+      * Blocking of well-known Script-Bots
+      * SSL Fingerprinting ([JA3](https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967/?ref=waf.ninja))
+
+    * Backend
+      * Sticky sessions
+      * Blocking TRACE & CONNECT methods
+
+----
+
+## Info
+
+* **Note:** this role currently only supports debian-based systems
+
+
+* **Note:** Most of the role's functionality can be opted in or out.
+
+  For all available options - see the default-config located in [the main defaults-file](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/1_main.yml)!
+
+
+* **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
+
+
+* **Info:** You can easily filter access to backends by using the `filter` and `filter_not` settings:
+
+    `filter_ip`, `filter_not_ip`, `filter_country`, `filter_not_country`, `filter_asn`, `filter_not_asn`
+
+
+* **Info:** A very basic user-agent based Script- & Bad-Crawler-Bot blocking can be activated for frontends and backends. Check out the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/2_waf.yml) for the list of bots that are blocked.
+
+
+* **Info:** You can easily restrict the HTTP methods allowed on a specific frontend or backend by setting `security.restrict_methods` to true and specifying `security.allow_only_methods`
+
+
+* **Info:** Check out the [Fingerprinting Docs](https://github.com/ansibleguy/infra_haproxy/blob/latest/Fingerprinting.md) for detailed information on how you might want to track clients.
+
+
+* **Info:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
+
+
+
+### GeoIP
+
+
+* **Warning**: If you use the auto-provisioned GeoIP databases - make sure your product follows their license agreement:
+
+    * **IPinfo**: [Information](https://ipinfo.io/products/free-ip-database), [CC4 License](https://creativecommons.org/licenses/by-sa/4.0/) (*allows for commercial usage - you need to add an attribution*)
+
+        **Attribution**: `<p>IP address data powered by <a href="https://ipinfo.io">IPinfo</a></p>`
+
+    * **MaxMind**: [Information](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data), [EULA](https://www.maxmind.com/en/geolite2/eula) (*allows for limited commercial usage - you need to add an attribution*)
+
+        **Attribution**: `This product includes GeoLite2 data created by MaxMind, available from <a href="https://www.maxmind.com">https://www.maxmind.com</a>.`
+
+
+* **Info**: For GeoIP Tokens you will have to create a free account:
+
+    * **IPInfo**: [Login/Register](https://ipinfo.io/login)
+    * **MaxMind**: [Login/Register](https://www.maxmind.com/en/account/login) - Set the `token` to `<ACCOUNT>:<LICENSE>`
+
+
+* **Info**: If you want to self-manage the GeoIP-databases (*not recommended*) - the role will assume they are placed at `/var/local/lib/geoip` and be named `asn.mmdb` & `country.mmdb`.
+
+
+* **Info**: You can test the [GeoIP Lookup Microservice](https://github.com/superstes/haproxy-geoip) manually by using curl: `curl 'http://127.0.0.1:10069/?lookup=country&ip=1.1.1.1'`
+
+### WAF
+
+* **Note**: The WAF/security feature-set this role provides does not come lose to the one [available in HAProxy Enterprise by default](https://www.haproxy.com/solutions/web-application-firewall). If you have the money - go for it.
+
 
 ----
 

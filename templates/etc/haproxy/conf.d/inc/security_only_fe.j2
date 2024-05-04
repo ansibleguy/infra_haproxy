@@ -5,7 +5,7 @@
 {%   endfor %}
 {% endif %}
 {% if cnf.security.fingerprint_ssl | bool %}
-    # SSL fingerprint
+    # SSL fingerprint{# TODO: make more compact - did not find a better way of setting it as variable +#}
     http-request set-var(txn.fp_ssl_p1) ssl_fc_cipherlist_bin(1),be2dec(-,2)
     http-request set-var(txn.fp_ssl_p2) ssl_fc_extlist_bin(1),be2dec(-,2)
     http-request set-var(txn.fp_ssl_p3) ssl_fc_eclist_bin(1),be2dec(-,2)

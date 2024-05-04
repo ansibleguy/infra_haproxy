@@ -1,7 +1,10 @@
 ---
 
 defaults_waf:
+  # NOTE: the block-code is very limited if you want to use an errorfile!
+  #   see: https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/#http-request%20return
   block_code: 425
+  block_errorfile: true
 
   # todo: search parameters and body of http requests for SQLi/Path-Traversal/XSS/...
 
