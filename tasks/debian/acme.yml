@@ -132,7 +132,8 @@
     - 'timer'
   register: acme_renewal_svc
 
-# NOTE: to reload certs; could be removed if the ACME user was granted privileges to reload the haproxy service and the reload-commands were uncommented in the hook-script
+# NOTE: to reload certs
+#   could be removed if the ACME user was granted privileges to reload the haproxy service and the reload-commands were uncommented in the hook-script
 - name: HAProxy | ACME | Reload Service/Timer
   ansible.builtin.template:
     src: "templates/etc/systemd/system/{{ HAPROXY_HC.service_acme_reload }}.{{ item }}.j2"

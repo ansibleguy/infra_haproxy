@@ -11,7 +11,7 @@ defaults_waf:
     # matching is done case-insensitive
     script:
       # NOTE: empty user-agent is also matched
-      full: [ ]
+      full: []
 
       # NOTE: these are sub-strings inside the user-agent header
       sub:
@@ -48,7 +48,7 @@ defaults_waf:
         - 'ruby'
 
     bad_crawlers:
-      full: [ ]
+      full: []
       sub:
         - 'spider'
         - 'test-bot'
