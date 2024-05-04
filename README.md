@@ -2,7 +2,7 @@
 <img src="https://www.haproxy.com/assets/legal/web-logo.png" alt="HAProxy Logo" width="300"/>
 </a>
 
-# Ansible Role - HAProxy Community
+# Ansible Role - HAProxy Community (with ACME, GeoIP and some WAF-Features)
 
 Role to deploy HAProxy (*Focus on the Community Version*)
 
@@ -41,6 +41,18 @@ ansible-galaxy install -r requirements.yml
 
 ----
 
+### Roadmap
+
+* Security
+  * Basic bot flagging
+  * Basic rate limit (GET/HEAD and POST/PUT/DELETE separated)
+  * Generic client fingerprint
+* 'Interface' for Dict to Map-File translation/creation
+* Option to easily Download & Integrate IPLists (*like Tor Exit nodes*)
+* Easy way to override the default error-files
+
+----
+
 ## Functionality
 
 * **Package installation**
@@ -73,6 +85,10 @@ ansible-galaxy install -r requirements.yml
       * [GeoIP Lookups](https://github.com/superstes/haproxy-geoip)
       * Blocking of well-known Script-Bots
       * Blocking TRACE & CONNECT methods
+      * SSL Fingerprinting ([JA3](https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967/?ref=waf.ninja))
+
+    * Backend
+      * Sticky sessions (*use same backend )
 
 ----
 
@@ -102,6 +118,11 @@ ansible-galaxy install -r requirements.yml
 
 * **Info:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
 
+
+* **Info:** If you enable `fingerprint_ssl` you can reference it using the variables:
+
+    * `var(txn.fingerprint_ssl)` => MD5 hash of JA3 fingerprint
+    * `var(txn.fingerprint_ssl_raw)` => raw JA3 fingerprint
 
 ### GeoIP
 
@@ -209,6 +230,7 @@ haproxy:
       security:
         restrict_methods: true
         allow_only_methods: ['HEAD', 'GET', 'POST']
+        fingerprint_ssl: true  # create and log the JA3 SSL-fingerprint of clients
         
         # very basic filtering of bad bots based on user-agent matching
         block_script_bots: true
@@ -304,7 +326,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml
 
 There are also some useful **tags** available:
 * install
-* config
+* config => only update config and ssl certs
 * ssl or acme
 * geoip
 
@@ -312,13 +334,3 @@ To debug errors - you can set the 'debug' variable at runtime:
 ```bash
 ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 ```
-
-----
-
-### Roadmap
-
-* Security - Basic bot flagging
-* Security - Basic rate limit (GET/HEAD and POST/PUT/DELETE separated)
-* 'Interface' for Dict to Map-File translation/creation
-* Option to easily Download & Integrate IPLists (*like Tor Exit nodes*)
-* Easy way to override the default error-files

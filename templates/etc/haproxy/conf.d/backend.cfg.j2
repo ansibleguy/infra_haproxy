@@ -8,20 +8,31 @@ backend {{ name }}
     mode {{ cnf.mode }}
     balance {{ cnf.balance }}
 
-{%  if cnf.check | bool and cnf.mode == 'http' %}
-{%    if cnf.check_http | bool %}
-    option httpchk
-{%    endif %}
-{%    if cnf.check_uri | default(none, true) is not none %}
-    http-check send meth {{ cnf.check_method }} uri {{ cnf.check_uri }}
-{%    endif %}
-{%    if cnf.check_expect | default(none, true) is not none %}
-    http-check expect {{ cnf.check_expect }}
-{%    endif %}
-{%  endif %}
-
 {% if cnf.mode == 'http' %}
+{%   if cnf.check | bool %}
+{%     if cnf.check_http | bool %}
+    option httpchk
+{%     endif %}
+{%     if cnf.check_uri | default(none, true) is not none %}
+    http-check send meth {{ cnf.check_method }} uri {{ cnf.check_uri }}
+{%     endif %}
+{%     if cnf.check_expect | default(none, true) is not none %}
+    http-check expect {{ cnf.check_expect }}
+{%     endif %}
+{%   endif %}
+
+{%   if cnf.sticky | bool %}
+    cookie {{ cnf.sticky_http.cookie }} insert indirect nocache
+{%   endif %}
+
 {%   include "inc/security.j2" %}
+{% endif %}
+
+{% if cnf.mode == 'tcp' %}
+{%   if cnf.sticky | bool %}
+    stick match {{ cnf.sticky_tcp.match }}
+    stick-table {{ cnf.sticky_tcp.table }}
+{%   endif %}
 {% endif %}
 
 {%  if cnf.lines | is_dict %}
@@ -41,7 +52,7 @@ backend {{ name }}
 {%  endif %}
 
 {%  for server in cnf.servers | ensure_list %}
-    server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}
+    server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}{% if cnf.mode == 'http' and cnf.sticky | bool %} cookie {{ cnf.sticky_http.cookie }}{{ loop.index }}{% endif %}
 {%  endfor %}
 
 {% endfor %}

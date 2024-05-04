@@ -35,6 +35,7 @@ frontend {{ name }}
 {%   endif %}
 
 {%   include "inc/security.j2" %}
+{%   include "inc/security_only_fe.j2" %}
 {% endif %}
 
 {%   if cnf.log.user_agent | bool %}

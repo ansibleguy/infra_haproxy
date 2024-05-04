@@ -50,6 +50,7 @@ defaults_haproxy:
     DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
     ssl-default-bind-ciphersuites: 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256'
     ssl-default-bind-options: 'ssl-min-ver TLSv1.2 no-tls-tickets'
+    tune.ssl.capture-buffer-size: 96  # needed for ssl finterprinting
 
   defaults:
     log: 'global'
@@ -82,6 +83,7 @@ defaults_frontend:
   ssl_redirect: true
   security:
     headers: true
+    fingerprint_ssl: true  # create and log the JA3 fingerprint of clients
 
     restrict_methods: false
     allow_only_methods: ['HEAD', 'GET', 'POST']
@@ -128,6 +130,12 @@ defaults_backend:
   servers: []
   ssl: false
   ssl_verify: 'none'  # example: 'required ca-file /etc/ssl/certs/my_ca.crt verifyhost host01.intern'
+  sticky: false  # set cookie to stick sessions to a specific backend server
+  sticky_http:
+    cookie: 'srv'
+  sticky_tcp:
+    match: 'src'
+    table: 'type ip size 5k expire 120m'
 
   security:
     restrict_methods: false
