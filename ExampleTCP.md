@@ -85,9 +85,9 @@ root@test-ag-haproxy-tcp:/# cat /etc/haproxy/conf.d/frontend.cfg
 > 
 >     # GEOIP
 >     acl private_nets src 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 127.0.0.0/8 ::1
->     http-request set-var(txn.geoip_country) str(00) if private_nets
 > 
 >     ## GEOIP COUNTRY
+>     http-request set-var(txn.geoip_country) str(0) if private_nets
 >     acl geoip_country_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_country.map) -m found
 >     http-request set-var(txn.geoip_country) src,ipmask(24,48),map(/etc/haproxy/map/geoip_country.map) if !private_nets geoip_country_in_map
 >     http-request lua.lookup_geoip_country if !{ var(txn.geoip_country) -m found }
@@ -95,6 +95,7 @@ root@test-ag-haproxy-tcp:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     http-request capture var(txn.geoip_country) len 2
 > 
 >     ## GEOIP ASN
+>     http-request set-var(txn.geoip_asn) int(0) if private_nets
 >     acl geoip_asn_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_asn.map) -m found
 >     http-request set-var(txn.geoip_asn) src,ipmask(24,48),map(/etc/haproxy/map/geoip_asn.map) if !private_nets geoip_asn_in_map
 >     http-request lua.lookup_geoip_asn if !{ var(txn.geoip_asn) -m found }

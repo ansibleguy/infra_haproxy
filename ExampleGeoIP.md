@@ -100,16 +100,17 @@ root@test-ag-haproxy-geoip:/# cat /etc/haproxy/conf.d/frontend.cfg
 > 
 >     # GEOIP
 >     acl private_nets src 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 127.0.0.0/8 ::1
->     http-request set-var(txn.geoip_country) str(00) if private_nets
 > 
 >     ## GEOIP COUNTRY
->     acl geoip_country_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_country.map) -m found
->     http-request set-var(txn.geoip_country) src,ipmask(24,48),map(/etc/haproxy/map/geoip_country.map) if !private_nets geoip_country_in_map
->     http-request lua.lookup_geoip_country if !{ var(txn.geoip_country) -m found }
->     http-request set-map(/etc/haproxy/map/geoip_country.map) %[src,ipmask(24,48)] %[var(txn.geoip_country)] if !private_nets !geoip_country_in_map
->     http-request capture var(txn.geoip_country) len 2
+>     http-request set-var(txn.geoip_country) str(0) if private_nets  # set default value if client is non-public
+>     acl geoip_country_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_country.map) -m found  # check if result found in cache-map (memory - faster)
+>     http-request set-var(txn.geoip_country) src,ipmask(24,48),map(/etc/haproxy/map/geoip_country.map) if !private_nets geoip_country_in_map  # set to cache-map entry if found
+>     http-request lua.lookup_geoip_country if !{ var(txn.geoip_country) -m found }  # if not cached - pull result from lookup service
+>     http-request set-map(/etc/haproxy/map/geoip_country.map) %[src,ipmask(24,48)] %[var(txn.geoip_country)] if !private_nets !geoip_country_in_map  # save result to cache-map
+>     http-request capture var(txn.geoip_country) len 2  # log it
 > 
 >     ## GEOIP ASN
+>     http-request set-var(txn.geoip_asn) int(0) if private_nets
 >     acl geoip_asn_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_asn.map) -m found
 >     http-request set-var(txn.geoip_asn) src,ipmask(24,48),map(/etc/haproxy/map/geoip_asn.map) if !private_nets geoip_asn_in_map
 >     http-request lua.lookup_geoip_asn if !{ var(txn.geoip_asn) -m found }
