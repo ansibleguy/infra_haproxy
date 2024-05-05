@@ -6,7 +6,9 @@
 
 backend {{ name }}
     mode {{ cnf.mode }}
+{%   if cnf.balance | default(none, true) is not none %}
     balance {{ cnf.balance }}
+{%   endif %}
 
 {%   if cnf.mode == 'http' %}
 {%     if cnf.check | bool %}

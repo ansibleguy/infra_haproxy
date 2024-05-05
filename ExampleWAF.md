@@ -136,7 +136,6 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/backend.cfg
 > 
 > backend be_test
 >     mode http
->     balance leastconn
 > 
 >     http-request deny status 405 default-errorfiles if !{ method HEAD GET POST }
 > 
@@ -151,7 +150,6 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/backend.cfg
 > 
 > backend be_fallback
 >     mode http
->     balance leastconn
 > 
 >     http-request redirect code 302 location https://github.com/ansibleguy
 >     

@@ -127,7 +127,7 @@ defaults_frontend:
 
 defaults_backend:
   mode: 'http'
-  balance: 'leastconn'
+  balance:
 
   lines: {}  # raw config lines to add - section to lines mapping to make resulting config human-readable
 

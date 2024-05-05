@@ -120,19 +120,16 @@ root@test-ag-haproxy-tcp:/# cat /etc/haproxy/conf.d/backend.cfg
 > 
 > backend be_mail_smtp
 >     mode tcp
->     balance leastconn
 > 
 >     server mail-gateway 192.168.0.10:25 check
 > 
 > backend be_mail_imap
 >     mode tcp
->     balance leastconn
 > 
 >     server mail-server 192.168.0.11:993 check
 > 
 > backend be_fallback_tcp
 >     mode tcp
->     balance leastconn
 > 
 >     tcp-request content reject
 > 

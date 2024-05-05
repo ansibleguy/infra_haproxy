@@ -155,20 +155,17 @@ root@test-ag-haproxy-geoip:/# cat /etc/haproxy/conf.d/backend.cfg
 > 
 > backend be_test1
 >     mode http
->     balance leastconn
 > 
 >     server srv1 192.168.10.11:80 check
 >
 > 
 > backend be_test2
 >     mode http
->     balance leastconn
 > 
 >     server srv2 192.168.10.12:80 check
 > 
 > backend be_fallback
 >     mode http
->     balance leastconn
 > 
 >     http-request redirect code 302 location https://github.com/ansibleguy
 > 

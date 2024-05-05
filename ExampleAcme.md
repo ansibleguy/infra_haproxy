@@ -132,7 +132,6 @@ root@test-ag-haproxy-acme:/# cat /etc/haproxy/conf.d/backend.cfg
 > 
 > backend be_test
 >     mode http
->     balance leastconn
 > 
 >
 >     server srv-1 192.168.10.11:80 check
@@ -140,7 +139,6 @@ root@test-ag-haproxy-acme:/# cat /etc/haproxy/conf.d/backend.cfg
 > 
 > backend be_fallback
 >     mode http
->     balance leastconn
 > 
 >     http-request redirect code 302 location https://github.com/ansibleguy
 > 
