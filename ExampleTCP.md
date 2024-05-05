@@ -9,6 +9,10 @@ logformat_tcp: "TCP: %ci:%cp [%t] %ft %b/%s %Tw/%Tc/%Tt %B %ts %ac/%fc/%bc/%sc/%
 # logformat_http: "HTTP: %ci:%cp [%tr] %ft %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r"
 
 haproxy:
+  geoip:
+    enable: true
+    token: "<YOUR TOKEN>"
+
   frontends:
     fe_mail_smtp:
       mode: 'tcp'
@@ -73,10 +77,7 @@ root@test-ag-haproxy-tcp:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     log-format "TCP: %ci:%cp [%t] %ft %b/%s %Tw/%Tc/%Tt %B %ts %ac/%fc/%bc/%sc/%rc %sq/%bq"
 > 
 >     # BACKEND be_mail_smtp
->     acl be_mail_smtp_filter_ip always_true
->     acl be_mail_smtp_filter_not_ip always_false
-> 
->     use_backend be_mail_smtp if be_mail_smtp_filter_ip !be_mail_smtp_filter_not_ip
+>     use_backend be_mail_smtp
 > 
 > frontend fe_mail_imap
 >     mode tcp
@@ -103,14 +104,8 @@ root@test-ag-haproxy-tcp:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     log-format "TCP: %ci:%cp [%t] %ft %b/%s %Tw/%Tc/%Tt %B %ts %ac/%fc/%bc/%sc/%rc %sq/%bq"
 > 
 >     # BACKEND be_mail_imap
->     acl be_mail_imap_filter_ip always_true
->     acl be_mail_imap_filter_not_ip always_false
->     acl be_mail_imap_filter_country var(txn.geoip_country) -m str -i SI
->     acl be_mail_imap_filter_not_country always_false
->     acl be_mail_imap_filter_asn always_true
->     acl be_mail_imap_filter_not_asn always_false
-> 
->     use_backend be_mail_imap if be_mail_imap_filter_ip !be_mail_imap_filter_not_ip be_mail_imap_filter_asn !be_mail_imap_filter_not_asn be_mail_imap_filter_country !be_mail_imap_filter_not_country
+>     acl be_mail_imap_filter_country var(txn.geoip_country) -m str -i SI 
+>     use_backend be_mail_imap if be_mail_imap_filter_country
 > 
 >     default_backend be_fallback_tcp
 

@@ -126,25 +126,18 @@ root@test-ag-haproxy-geoip:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     http-request capture req.fhdr(User-Agent) len 200
 > 
 >     # BACKEND be_test1
->     acl be_test1_domains req.hdr(host) -m str -i app1.test.ansibleguy.net    acl be_test1_filter_ip always_true
->     acl be_test1_filter_not_ip always_false
+>     acl be_test1_domains req.hdr(host) -m str -i app1.test.ansibleguy.net
 >     acl be_test1_filter_country var(txn.geoip_country) -m str -i AT
->     acl be_test1_filter_not_country always_false
 >     acl be_test1_filter_asn var(txn.geoip_asn) -m int -i 1337
->     acl be_test1_filter_not_asn always_false
 > 
->     use_backend be_test1 if be_test1_domains be_test1_filter_ip !be_test1_filter_not_ip be_test1_filter_asn !be_test1_filter_not_asn be_test1_filter_country !be_test1_filter_not_country
+>     use_backend be_test1 if be_test1_domains be_test1_filter_asn be_test1_filter_country
 > 
 >     # BACKEND be_test2
 >     acl be_test2_domains req.hdr(host) -m str -i app2.test.ansibleguy.net
->     acl be_test2_filter_ip always_true
->     acl be_test2_filter_not_ip always_false
->     acl be_test2_filter_country always_true
 >     acl be_test2_filter_not_country var(txn.geoip_country) -m str -i CN RU US
->     acl be_test2_filter_asn always_true
 >     acl be_test2_filter_not_asn var(txn.geoip_asn) -m int -i 100000 120000
 > 
->     use_backend be_test2 if be_test2_domains be_test2_filter_ip !be_test2_filter_not_ip be_test2_filter_asn !be_test2_filter_not_asn be_test2_filter_country !be_test2_filter_not_country
+>     use_backend be_test2 if be_test2_domains !be_test2_filter_not_asn !be_test2_filter_not_country
 > 
 >     default_backend be_fallback
 

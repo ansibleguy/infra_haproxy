@@ -123,10 +123,7 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/frontend.cfg
 > 
 >     # BACKEND be_test
 >     acl be_test_domains req.hdr(host) -m str -i app.test.ansibleguy.net
->     acl be_test_filter_ip always_true
->     acl be_test_filter_not_ip always_false
-> 
->     use_backend be_test if be_test_domains be_test_filter_ip !be_test_filter_not_ip
+>     use_backend be_test if be_test_domains
 > 
 >     default_backend be_fallback
 
