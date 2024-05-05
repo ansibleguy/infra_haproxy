@@ -39,8 +39,7 @@ clean_challenge() {
 
 deploy_cert() {
     local DOMAIN="${1}" KEYFILE="${2}" CERTFILE="${3}" FULLCHAINFILE="${4}" CHAINFILE="${5}" TIMESTAMP="${6}"
-    local CERTDIR=$(dirname "${FULLCHAINFILE}")
-    local SHOPCODE=$(dirname "${CERTDIR}")
+    local CERTNAME=$(dirname "${FULLCHAINFILE}")
 
     # This hook is called once for each certificate that has been
     # produced. Here you might, for instance, copy your new certificates
@@ -61,13 +60,13 @@ deploy_cert() {
     # - TIMESTAMP
     #   Timestamp when the specified certificate was created.
 
-    cat "${FULLCHAINFILE}" "${KEYFILE}" > "${HAPROXY_CERT_DIR}/${DOMAIN}.pem"
+    cat "${FULLCHAINFILE}" "${KEYFILE}" > "${HAPROXY_CERT_DIR}/${CERTNAME}.pem"
     # sudo systemctl reload haproxy.service
 }
 
 deploy_ocsp() {
     local DOMAIN="${1}" OCSPFILE="${2}" TIMESTAMP="${3}"
-    local CERTDIR=$(dirname "${OCSPFILE}")
+    local CERTNAME=$(dirname "${OCSPFILE}")
 
     # This hook is called once for each updated ocsp stapling file that has
     # been produced. Here you might, for instance, copy your new ocsp stapling
@@ -82,7 +81,7 @@ deploy_ocsp() {
     # - TIMESTAMP
     #   Timestamp when the specified ocsp stapling file was created.
 
-    cp "${OCSPFILE}" "${HAPROXY_CERT_DIR}/${DOMAIN}.pem.ocsp"
+    cp "${OCSPFILE}" "${HAPROXY_CERT_DIR}/${CERTNAME}.pem.ocsp"
     # sudo systemctl reload haproxy.service
 }
 

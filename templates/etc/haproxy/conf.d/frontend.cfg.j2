@@ -16,22 +16,22 @@ frontend {{ name }}
 {%   if cnf.mode == 'http' %}
 {%     if cnf.ssl_redirect | bool and 'ssl' in (cnf.bind | join('-')) %}
     http-request redirect scheme https code 301 if !{ ssl_fc } !{ path_beg -i /.well-known/acme-challenge/ }
+
 {%     endif %}
 {%   endif %}
-
 {%   if cnf.geoip.enable | bool %}
 {% include "inc/geoip.j2" %}
-{%   endif %}
 
+{%   endif %}
 {% if cnf.mode == 'http' %}
 {%   include "inc/security.j2" %}
 {%   include "inc/security_only_fe.j2" %}
-{% endif %}
 
+{% endif %}
 {%   if cnf.log.user_agent | bool %}
     http-request capture req.fhdr(User-Agent) len 200
-{%   endif %}
 
+{%   endif %}
 {%  if cnf.lines | is_dict %}
 {%    for section, lines in cnf.lines.items() %}
     # SECTION: {{ section }}
@@ -41,17 +41,15 @@ frontend {{ name }}
 
 {%    endfor %}
 {%  else %}
-    # SECTION: default
 {%    for line in cnf.lines | ensure_list %}
     {{ line }}
 {%    endfor %}
 
 {%  endif %}
-
 {%   if cnf.acme.enable | bool %}
     use_backend be_haproxy_acme if { path_beg -i /.well-known/acme-challenge/ }
-{%  endif %}
 
+{%  endif %}
 {%  for be_name, be_cnf_user in cnf.routes.items() %}
 {%    set be_cnf = defaults_frontend_route | combine(be_cnf_user, recursive=true) %}
 

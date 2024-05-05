@@ -9,6 +9,7 @@ class FilterModule(object):
             "is_string": self.is_string,
             "is_dict": self.is_dict,
             "safe_key": self.safe_key,
+            "ssl_fingerprint_active": self.ssl_fingerprint_active,
         }
 
     @staticmethod
@@ -30,3 +31,15 @@ class FilterModule(object):
     @staticmethod
     def safe_key(key: str) -> str:
         return regex_replace('[^0-9a-zA-Z_]+', '', key.replace(' ', '_'))
+
+    @staticmethod
+    def ssl_fingerprint_active(frontends: dict) -> bool:
+        for fe_cnf in frontends.values():
+            try:
+                if fe_cnf['security']['fingerprint_ssl']:
+                    return True
+
+            except KeyError:
+                continue
+
+        return False

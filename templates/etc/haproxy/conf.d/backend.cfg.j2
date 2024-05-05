@@ -8,53 +8,49 @@ backend {{ name }}
     mode {{ cnf.mode }}
     balance {{ cnf.balance }}
 
-{% if cnf.mode == 'http' %}
-{%   if cnf.check | bool %}
-{%     if cnf.check_http | bool %}
+{%   if cnf.mode == 'http' %}
+{%     if cnf.check | bool %}
+{%       if cnf.check_http | bool %}
     option httpchk
-{%     endif %}
-{%     if cnf.check_uri | default(none, true) is not none %}
+{%       endif %}
+{%       if cnf.check_uri | default(none, true) is not none %}
     http-check send meth {{ cnf.check_method }} uri {{ cnf.check_uri }}
-{%     endif %}
-{%     if cnf.check_expect | default(none, true) is not none %}
+{%       endif %}
+{%       if cnf.check_expect | default(none, true) is not none %}
     http-check expect {{ cnf.check_expect }}
+{%       endif %}
 {%     endif %}
-{%   endif %}
-
-{%   if cnf.sticky | bool %}
+{%     if cnf.sticky | bool %}
     cookie {{ cnf.sticky_http.cookie }} insert indirect nocache
+{%     endif %}
+{%     include "inc/security.j2" %}
 {%   endif %}
-
-{%   include "inc/security.j2" %}
-{% endif %}
-
-{% if cnf.mode == 'tcp' %}
-{%   if cnf.sticky | bool %}
+{%   if cnf.mode == 'tcp' %}
+{%     if cnf.sticky | bool %}
     stick match {{ cnf.sticky_tcp.match }}
     stick-table {{ cnf.sticky_tcp.table }}
+
+{%     endif %}
 {%   endif %}
-{% endif %}
-
-{%  if cnf.lines | is_dict %}
-{%    for section, lines in cnf.lines.items() %}
+{%   if cnf.lines | is_dict %}
+{%     for section, lines in cnf.lines.items() %}
     # SECTION: {{ section }}
-{%      for line in lines | ensure_list %}
+{%       for line in lines | ensure_list %}
     {{ line }}
-{%      endfor %}
+{%       endfor %}
 
-{%    endfor %}
-{%  else %}
-    # SECTION: default
-{%    for line in cnf.lines | ensure_list %}
+{%     endfor %}
+{%   else %}
+{%     for line in cnf.lines | ensure_list %}
     {{ line }}
-{%    endfor %}
+{%     endfor %}
+{%   endif %}
+{%   if cnf.servers | length > 0 %}
 
-{%  endif %}
-
-{%  for server in cnf.servers | ensure_list %}
+{%     for server in cnf.servers | ensure_list %}
     server {{ server }}{% if cnf.check | bool %} check{% endif %}{% if cnf.ssl | bool %} ssl verify {{ cnf.ssl_verify }}{% endif %}{% if cnf.mode == 'http' and cnf.sticky | bool %} cookie {{ cnf.sticky_http.cookie }}{{ loop.index }}{% endif +%}
-{%  endfor %}
-
+{%     endfor %}
+{%   endif %}
 {% endfor %}
 
 {% if HAPROXY_CONFIG.acme.enable | bool %}

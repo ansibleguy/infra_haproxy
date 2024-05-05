@@ -9,6 +9,9 @@ global
 {% if HAPROXY_CONFIG.geoip.enable | bool %}
     lua-load {{ HAPROXY_HC.path.lua }}/geoip.lua
 {% endif %}
+{% if HAPROXY_CONFIG.frontends | ssl_fingerprint_active and 'tune.ssl.capture-buffer-size' not in HAPROXY_CONFIG.global %}
+    tune.ssl.capture-buffer-size 96
+{% endif %}
 
 {% for key, value in HAPROXY_CONFIG.global.items() %}
 {%   if value | default(none, true) is none %}

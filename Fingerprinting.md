@@ -22,3 +22,5 @@ If you enable `security.fingerprint_ssl` you can reference it using the variable
 
 * `var(txn.fingerprint_ssl)` => MD5 hash of JA3 fingerprint
 * `var(txn.fingerprint_ssl_raw)` => raw JA3 fingerprint
+
+To use this kind of fingerprint, you have to enable the `[SSL capture-buffer](https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/#3.2-tune.ssl.capture-buffer-size)`. You may want to set it in the globals via `tune.ssl.capture-buffer-size 96`

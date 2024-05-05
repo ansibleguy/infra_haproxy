@@ -42,7 +42,7 @@
             - 'srv4 192.168.10.12:80'
 
         be_fallback:
-          lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
+          lines: 'http-request redirect code 302 location https://github.com/ansibleguy'
 
   roles:
     - ansibleguy.infra_haproxy
@@ -82,7 +82,7 @@
             - 'srv-2 192.168.10.12:80'
 
         be_fallback:
-          lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
+          lines: 'http-request redirect code 302 location https://github.com/ansibleguy'
 
   roles:
     - ansibleguy.infra_haproxy
@@ -132,7 +132,7 @@
           servers: 'srv2 192.168.10.12:80'
 
         be_fallback:
-          lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
+          lines: 'http-request redirect code 302 location https://github.com/ansibleguy'
 
   pre_tasks:
     - name: Loading GeoIP Token
@@ -193,7 +193,7 @@
             - 'srv-2 192.168.10.12:80'
 
         be_fallback:
-          lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
+          lines: 'http-request redirect code 302 location https://github.com/ansibleguy'
 
   roles:
     - ansibleguy.infra_haproxy

@@ -1,4 +1,4 @@
-# Basic Example with GeoIP
+# Basic Example with WAF
 
 There are still some basic WAF features to be implemented.
 
@@ -44,7 +44,7 @@ haproxy:
         - 'srv-2 192.168.10.12:80'
 
     be_fallback:
-      lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
+      lines: 'http-request redirect code 302 location https://github.com/ansibleguy'
 ```
 
 ----
@@ -60,7 +60,8 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/haproxy.cfg
 >     daemon
 >     user haproxy
 >     group haproxy
-> 
+>
+>     tune.ssl.capture-buffer-size 96
 > 
 >     log /dev/log    local0
 >     log /dev/log    local1 notice
@@ -72,7 +73,6 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/haproxy.cfg
 >     ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
 >     ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
 >     ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
->     tune.ssl.capture-buffer-size 96
 >
 > defaults
 >     log global
@@ -153,8 +153,7 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/backend.cfg
 >     mode http
 >     balance leastconn
 > 
->     # SECTION: default
->     http-request redirect code 301 location https://github.com/ansibleguy
+>     http-request redirect code 302 location https://github.com/ansibleguy
 >     
 
 root@test-ag-haproxy-waf:/# systemctl status haproxy.service

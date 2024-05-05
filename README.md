@@ -93,7 +93,7 @@ haproxy:
         - 'srv-2 192.168.10.12:80'
 
     be_fallback:
-      lines: 'http-request redirect code 301 location https://github.com/ansibleguy'
+      lines: 'http-request redirect code 302 location https://github.com/ansibleguy'
 ```
 
 ----
@@ -195,7 +195,7 @@ haproxy:
 
     be_fallback:
       lines:
-        default: 'http-request redirect code 301 location https://github.com/ansibleguy'
+        default: 'http-request redirect code 302 location https://github.com/ansibleguy'
 
   # GENERAL
   stats:
