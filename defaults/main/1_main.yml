@@ -21,6 +21,7 @@ defaults_haproxy:
     user: 'haproxy'
     pwd: 'monitor'
     realm: 'Authorized Personal Only'
+    log: true  # allows you to disable logging of stats access
 
   acme:  # see also: https://github.com/dehydrated-io/dehydrated/blob/master/docs/examples/config
     enable: false

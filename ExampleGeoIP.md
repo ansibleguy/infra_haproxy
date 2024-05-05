@@ -46,7 +46,7 @@ haproxy:
 
 ```bash
 root@test-ag-haproxy-geoip:/# journalctl -u haproxy.service -f
-> May 04 18:58:57 test-ag-haproxy-geoip haproxy[84265]: ::ffff:140.82.115.47:33494 [04/May/2024:18:58:57.790] fe_web~ be_test2/srv2 0/0/26/26/52 200 1778 - - ---- 2/2/0/0/0 0/0 {US|36459|github-camo (4b76e509)} "GET /infra_haproxy.pylint.svg HTTP/1.1"
+> May 04 18:58:57 test-ag-haproxy-geoip haproxy[84265]: ::ffff:140.82.115.0:33494 [04/May/2024:18:58:57.790] fe_web~ be_test2/srv2 0/0/26/26/52 200 1778 - - ---- 2/2/0/0/0 0/0 {US|36459|github-camo (4b76e509)} "GET /infra_haproxy.pylint.svg HTTP/1.1"
 
 root@test-ag-haproxy-geoip:/#ls -l /var/local/lib/geoip/
 > -rw-r--r-- 1 haproxy-geoip haproxy-geoip 11813924 May  2 18:24 asn.mmdb

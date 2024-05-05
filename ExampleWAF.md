@@ -1,4 +1,4 @@
-# Basic Example with WAF
+# Basic WAF Example
 
 There are still some basic WAF features to be implemented.
 

@@ -12,6 +12,10 @@ frontend stats
 
     redirect code 301 location /stats if { path -i / }
 
+{%   if not HAPROXY_CONFIG.stats.log | bool %}
+    no log
+{%   endif %}
+
 {%   if HAPROXY_CONFIG.stats.admin | bool %}
     stats admin{% if HAPROXY_CONFIG.stats.admin_if | default(none, true) is not none %} if {{ HAPROXY_CONFIG.stats.admin_if }}{% endif %}
 {%   endif %}

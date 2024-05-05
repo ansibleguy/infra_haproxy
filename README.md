@@ -63,6 +63,7 @@ Here some detailed config examples and their results:
 * [Example ACME](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleAcme.md)
 * [Example GeoIP](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleGeoIP.md)
 * [Example WAF](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleWAF.md)
+* [Example TCP](https://github.com/ansibleguy/infra_haproxy/blob/latest/ExampleTCP.md)
 
 ### Config
 

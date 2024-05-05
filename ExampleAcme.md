@@ -36,7 +36,6 @@ haproxy:
 ## Result
 
 ```bash
-
 root@test-ag-haproxy-acme:/# ls -l /etc/dehydrated/
 > -rw-r----- 1 root haproxy-acme 478 May  3 15:44 config
 > -rw-r----- 1 root haproxy-acme 898 May  4 13:29 domains.txt

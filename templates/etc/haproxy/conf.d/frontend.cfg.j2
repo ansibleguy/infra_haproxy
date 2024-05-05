@@ -20,18 +20,18 @@ frontend {{ name }}
 {%     endif %}
 {%   endif %}
 {%   if cnf.geoip.enable | bool %}
-{% include "inc/geoip.j2" %}
+{%     include "inc/geoip.j2" %}
 
 {%   endif %}
 {% if cnf.mode == 'http' %}
 {%   include "inc/security.j2" %}
 {%   include "inc/security_only_fe.j2" %}
 
-{% endif %}
 {%   if cnf.log.user_agent | bool %}
     http-request capture req.fhdr(User-Agent) len 200
 
 {%   endif %}
+{% endif %}
 {%  if cnf.lines | is_dict %}
 {%    for section, lines in cnf.lines.items() %}
     # SECTION: {{ section }}
@@ -54,30 +54,40 @@ frontend {{ name }}
 {%    set be_cnf = defaults_frontend_route | combine(be_cnf_user, recursive=true) %}
 
     # BACKEND {{ be_name }}
+{%    if cnf.mode == 'http' %}
     acl {{ be_name }}_domains {% if be_cnf.domains | length > 0 %}req.hdr(host) -m str -i {{ be_cnf.domains | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
+{%    endif %}
     acl {{ be_name }}_filter_ip {% if be_cnf.filter_ip | length > 0 %}src {{ be_cnf.filter_ip | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
     acl {{ be_name }}_filter_not_ip {% if be_cnf.filter_not_ip | length > 0 %}src {{ be_cnf.filter_not_ip | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
-{%   if HAPROXY_CONFIG.geoip.enable | bool and cnf.geoip.enable | bool %}
-{%     if cnf.geoip.country | bool %}
+{% if HAPROXY_CONFIG.geoip.enable | bool and cnf.geoip.enable | bool %}
+{%   if cnf.geoip.country | bool %}
     acl {{ be_name }}_filter_country {% if be_cnf.filter_country | length > 0 %}var(txn.geoip_country) -m str -i {{ be_cnf.filter_country | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
     acl {{ be_name }}_filter_not_country {% if be_cnf.filter_not_country | length > 0 %}var(txn.geoip_country) -m str -i {{ be_cnf.filter_not_country | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
-{%     else %}
+{%   else %}
     acl {{ be_name }}_filter_country always_true
     acl {{ be_name }}_filter_not_country always_false
-{%     endif %}
-{%     if cnf.geoip.asn | bool %}
+{%   endif %}
+{%   if cnf.geoip.asn | bool %}
     acl {{ be_name }}_filter_asn {% if be_cnf.filter_asn | length > 0 %}var(txn.geoip_asn) -m int -i {{ be_cnf.filter_asn | ensure_list | join(' ') }}{% else %}always_true{% endif +%}
     acl {{ be_name }}_filter_not_asn {% if be_cnf.filter_not_asn | length > 0 %}var(txn.geoip_asn) -m int -i {{ be_cnf.filter_not_asn | ensure_list | join(' ') }}{% else %}always_false{% endif +%}
-{%     else %}
+{%   else %}
     acl {{ be_name }}_filter_asn always_true
     acl {{ be_name }}_filter_not_asn always_false
-{%     endif %}
+{%   endif %}
 
+{%   if cnf.mode == 'http' %}
     use_backend {{ be_name }} if {{ be_name }}_domains {{ be_name }}_filter_ip !{{ be_name }}_filter_not_ip {{ be_name }}_filter_asn !{{ be_name }}_filter_not_asn {{ be_name }}_filter_country !{{ be_name }}_filter_not_country
 {%   else %}
-
-    use_backend {{ be_name }} if {{ be_name }}_domains {{ be_name }}_filter_ip !{{ be_name }}_filter_not_ip
+    use_backend {{ be_name }} if {{ be_name }}_filter_ip !{{ be_name }}_filter_not_ip {{ be_name }}_filter_asn !{{ be_name }}_filter_not_asn {{ be_name }}_filter_country !{{ be_name }}_filter_not_country
 {%   endif %}
+{% else %}
+
+{%   if cnf.mode == 'http' %}
+    use_backend {{ be_name }} if {{ be_name }}_domains {{ be_name }}_filter_ip !{{ be_name }}_filter_not_ip
+{%   else %}
+    use_backend {{ be_name }} if {{ be_name }}_filter_ip !{{ be_name }}_filter_not_ip
+{%   endif %}
+{% endif %}
 
 {%  endfor %}
 
