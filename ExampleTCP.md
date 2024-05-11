@@ -88,20 +88,14 @@ root@test-ag-haproxy-tcp:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     tcp-request inspect-delay 500ms
 > 
 >     ## GEOIP COUNTRY
->     tcp-request content  set-var(txn.geoip_country) str(0) if private_nets
->     acl geoip_country_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_country.map) -m found
->     tcp-request content  set-var(txn.geoip_country) src,ipmask(24,48),map(/etc/haproxy/map/geoip_country.map) if !private_nets geoip_country_in_map
->     tcp-request content  lua.lookup_geoip_country if !{ var(txn.geoip_country) -m found }
->     tcp-request content  set-map(/etc/haproxy/map/geoip_country.map) %[src,ipmask(24,48)] %[var(txn.geoip_country)] if !private_nets !geoip_country_in_map
->     tcp-request content  capture var(txn.geoip_country) len 2
+>     tcp-request content set-var(txn.geoip_country) str(0) if private_nets
+>     tcp-request content lua.lookup_geoip_country if !{ var(txn.geoip_country) -m found }
+>     tcp-request content capture var(txn.geoip_country) len 2
 > 
 >     ## GEOIP ASN
 >     tcp-request content set-var(txn.geoip_asn) int(0) if private_nets
->     acl geoip_asn_in_map src,ipmask(24,48),map_ip(/etc/haproxy/map/geoip_asn.map) -m found
->     tcp-request content  set-var(txn.geoip_asn) src,ipmask(24,48),map(/etc/haproxy/map/geoip_asn.map) if !private_nets geoip_asn_in_map
->     tcp-request content  lua.lookup_geoip_asn if !{ var(txn.geoip_asn) -m found }
->     tcp-request content  set-map(/etc/haproxy/map/geoip_asn.map) %[src,ipmask(24,48)] %[var(txn.geoip_asn)] if !private_nets !geoip_asn_in_map
->     tcp-request content  capture var(txn.geoip_asn) len 10
+>     tcp-request content lua.lookup_geoip_asn if !{ var(txn.geoip_asn) -m found }
+>     tcp-request content capture var(txn.geoip_asn) len 10
 > 
 >     log-format "TCP: %ci:%cp [%t] %ft %b/%s %Tw/%Tc/%Tt %B %ts %ac/%fc/%bc/%sc/%rc %sq/%bq {%[capture.req.hdr(0)]|%[capture.req.hdr(1)]}"
 > 
