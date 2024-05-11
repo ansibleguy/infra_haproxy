@@ -328,6 +328,13 @@ ansible-vault encrypt_string
 
 * **Note**: The WAF/security feature-set this role provides does not come lose to the one [available in HAProxy Enterprise by default](https://www.haproxy.com/solutions/web-application-firewall). If you have the money - go for it.
 
+### TCP
+
+* **Info**: If you want to capture data dynamically, you can use `tcp-request content capture`.
+
+    You have to enable the logging of captured data manually by modifying the log-format: `{% raw %}<DEFAULT LOG FORMAT HERE> {%[capture.req.hdr(0)]|%[capture.req.hdr(1)]}{% endraw %}`
+
+    This can be used to log the SNI or GeoIP information.
 
 ----
 
