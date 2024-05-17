@@ -23,3 +23,39 @@
     http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
 {%   endif %}
 {% endif %}
+{% if cnf.security.flag_bots | bool %}
+    # FLAG BOTS
+    ## flag bots by common user-agent substrings
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.any | ensure_list | join(' ') }} }
+
+{%   if not cnf.security.block_script_bots | bool %}
+    ## flag well-known script-bots
+{%     if HAPROXY_WAF.user_agents.script.full | length > 0 %}
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m str -i {{ HAPROXY_WAF.user_agents.script.full | ensure_list | join(' ') }} }
+{%     endif %}
+{%     if HAPROXY_WAF.user_agents.script.sub | length > 0 %}
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.script.sub | ensure_list | join(' ') }} }
+{%     endif %}
+{%   endif %}
+{%   if not cnf.security.block_bad_crawler_bots | bool %}
+    ## flag well-known bad-crawler-bots
+{%     if HAPROXY_WAF.user_agents.bad_crawlers.full | length > 0 %}
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m str -i {{ HAPROXY_WAF.user_agents.bad_crawlers.full | ensure_list | join(' ') }} }
+{%     endif %}
+{%     if HAPROXY_WAF.user_agents.bad_crawlers.sub | length > 0 %}
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
+{%     endif %}
+{%   endif %}
+    ## unusual if action has no referrer
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ method GET HEAD } !{ req.hdr(Referer) -m found }
+    ## browsers set this one usually
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ req.hdr(Accept-Language) -m found }
+
+{%   for line in cnf.security.flag_bots_lines %}
+    {{ line }}
+{%   endfor %}
+
+    http-request set-var(txn.bot) int(0) if !{ var(txn.bot) -m found }
+    http-request capture var(txn.bot) len 1
+
+{% endif %}

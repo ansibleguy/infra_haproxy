@@ -98,6 +98,10 @@ defaults_frontend:
     block_script_bots: false
     block_bad_crawler_bots: false
 
+    flag_bots: false
+    flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists
+    # prepend 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
+
   log:
     user_agent: true
 
@@ -150,6 +154,10 @@ defaults_backend:
 
     block_script_bots: false
     block_bad_crawler_bots: false
+
+    flag_bots: false
+    flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists
+    # prepend 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
 
   # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
   #   more complex ones should be implemented by supplying the raw config-lines

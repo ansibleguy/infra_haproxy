@@ -171,7 +171,7 @@
             # deny_dangerous_methods: true
             block_script_bots: true
             block_bad_crawler_bots: true
-
+            flag_bots: true
 
           routes:
             be_test:
