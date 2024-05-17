@@ -327,6 +327,17 @@ ansible-vault encrypt_string
 
 * **Note**: The WAF/security feature-set this role provides does not come lose to the one [available in HAProxy Enterprise by default](https://www.haproxy.com/solutions/web-application-firewall). If you have the money - go for it.
 
+
+* **Tip**: If you are using `security.flag_bots` you can use this basic boolean flag to harden rules for possible bots.
+
+    Examples:
+
+    * Lower rate-limit for bots: `http-request deny deny_status 429 if { var(txn.bot) -m int 1 } { sc_http_req_rate(0) gt 50 }`
+
+    * Hard deny bots to register accounts: `http-request deny deny_status 400 if { var(txn.bot) -m int 1 } { method POST } { path_sub -m str -i /register/ }`
+
+    * Pass the flag to your application to show a pretty error: `http-request add-header X-Bot %[var(txn.bot)]`
+
 ### TCP
 
 * **Info**: If you want to capture data dynamically, you can use `tcp-request content capture`.
