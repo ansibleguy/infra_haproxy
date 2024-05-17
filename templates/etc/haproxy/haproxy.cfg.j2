@@ -35,3 +35,9 @@ defaults
 {%     endfor %}
 {%   endif %}
 {% endfor %}
+
+{% if HAPROXY_CONFIG.root_lines | length > 0 %}
+{%   for line in HAPROXY_CONFIG.root_lines %}
+{{ line }}
+{%   endfor %}
+{% endif %}

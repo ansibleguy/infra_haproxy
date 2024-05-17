@@ -34,9 +34,6 @@ ansible-galaxy install ansibleguy.infra_haproxy
 
 # or to custom role-path
 ansible-galaxy install ansibleguy.infra_haproxy --roles-path ./roles
-
-# install dependencies
-ansible-galaxy install -r requirements.yml
 ```
 
 ----

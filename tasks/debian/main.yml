@@ -10,7 +10,7 @@
 - name: HAProxy | SSL/TLS Certificates
   ansible.builtin.include_tasks: debian/acme.yml
   when: HAPROXY_CONFIG.acme.enable | bool
-  tags: [ssl, acme]
+  tags: [ssl, acme, config]
   args:
     apply:
       tags: [ssl, acme]
@@ -18,7 +18,7 @@
 - name: HAProxy | GeoIP
   ansible.builtin.include_tasks: debian/geoip.yml
   when: HAPROXY_CONFIG.geoip.enable | bool
-  tags: [geoip]
+  tags: [geoip, config]
   args:
     apply:
       tags: [geoip]

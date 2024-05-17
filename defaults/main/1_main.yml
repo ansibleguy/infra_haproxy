@@ -72,6 +72,7 @@ defaults_haproxy:
     'errorfile 503': '/etc/haproxy/errors/503.http'
     'errorfile 504': '/etc/haproxy/errors/504.http'
 
+  root_lines: []  # add lines to the root of the main config file
 
 defaults_frontend:
   mode: 'http'
