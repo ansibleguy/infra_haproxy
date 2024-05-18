@@ -97,6 +97,7 @@ defaults_frontend:
 
     block_script_bots: false
     block_bad_crawler_bots: false
+    block_script_kiddies: false  # you might have to define 'haproxy.waf.script_kiddy.excludes' for your use-cases
 
     flag_bots: false
     flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists
@@ -154,6 +155,7 @@ defaults_backend:
 
     block_script_bots: false
     block_bad_crawler_bots: false
+    block_script_kiddies: false  # you might have to define 'haproxy.waf.script_kiddy.excludes' for your use-cases
 
     flag_bots: false
     flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists

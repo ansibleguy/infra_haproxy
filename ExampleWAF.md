@@ -22,7 +22,7 @@ haproxy:
         # deny_dangerous_methods: true
         block_script_bots: true
         block_bad_crawler_bots: true
-
+        block_script_kiddies: true
 
       routes:
         be_test:
@@ -140,6 +140,10 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/backend.cfg
 >     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m sub -i curl wget Apache-HttpClient nmap Metasploit headless cypress go-http-client zgrab python httpx httpcore aiohttp httputil urllib GuzzleHttp phpcrawl Zend_Http_Client Wordpress Symfony-HttpClient cpp-httplib java perl axios ruby }
 >     # block well-known bad-crawler-bots
 >     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m sub -i spider test-bot tiny-bot fidget-spinner-bot download scrapy }
+>     # block script-kiddy requests
+>     http-request deny status 425 default-errorfiles if { path_beg -i /cgi-bin/ /icons/ /manager/ /php /program/ /pwd/ /shaAdmin/ /typo3/ /admin/ /dbadmin/ /db/ /solr/ /weaver/ /joomla/ /App/ /webdav/ /xmlrpc /% /. /securityRealm/ /magmi/ /menu/ /etc/ /HNAP1 }
+>     http-request deny status 425 default-errorfiles if { path_end -i .php .asp .aspx .esp .lua .rsp .ashx .dll .bin .cgi .cs .application .exe .env .git/config .git/HEAD .git/index .DS_Store .aws/config .config .settings .zip .tar .tgz .gz .bz2 .rar .7z .sql .sqlite3 .bak }
+>     http-request deny status 425 default-errorfiles if { path_sub -i /../ }
 > 
 >     server srv-1 192.168.10.11:80 check
 >     server srv-2 192.168.10.12:80 check

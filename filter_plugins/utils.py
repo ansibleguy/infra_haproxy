@@ -11,6 +11,7 @@ class FilterModule(object):
             "safe_key": self.safe_key,
             "ssl_fingerprint_active": self.ssl_fingerprint_active,
             "build_route": self.build_route,
+            "join_w_excludes": self.join_w_excludes,
         }
 
     @staticmethod
@@ -48,6 +49,11 @@ class FilterModule(object):
     @staticmethod
     def is_truthy(v: (bool, str, int)) -> bool:
         return v in [True, 'yes', 'y', 'Yes', 'YES', 'true', 1, '1']
+
+    @classmethod
+    def join_w_excludes(cls, v: list, excludes: list) -> str:
+        return ' '.join([v for v in cls.ensure_list(v) if v not in cls.ensure_list(excludes)])
+
 
     @classmethod
     def build_route(cls, fe_cnf: dict, be_cnf: dict, be_name: str) -> list:

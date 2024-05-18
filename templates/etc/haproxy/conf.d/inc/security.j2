@@ -23,6 +23,12 @@
     http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
 {%   endif %}
 {% endif %}
+{% if cnf.security.block_script_kiddies | bool %}
+    # block script-kiddy requests
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path_beg -i {{ HAPROXY_WAF.script_kiddy.path_beg | join_w_excludes(HAPROXY_WAF.script_kiddy.excludes) }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path_end -i {{ HAPROXY_WAF.script_kiddy.path_end | join_w_excludes(HAPROXY_WAF.script_kiddy.excludes) }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path_sub -i {{ HAPROXY_WAF.script_kiddy.path_sub | join_w_excludes(HAPROXY_WAF.script_kiddy.excludes) }} }
+{% endif %}
 {% if cnf.security.flag_bots | bool %}
     # FLAG BOTS
     ## flag bots by common user-agent substrings
