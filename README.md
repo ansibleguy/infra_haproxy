@@ -297,6 +297,8 @@ ansible-vault encrypt_string
 * **Info:** If you are using [Graylog Server](https://graylog.org/products/source-available/) to gather and analyze your logs - make sure to split your HAProxy logs into fields using pipeline rules. Example: [HAProxy Community - Graylog Pipeline Rule](https://gist.github.com/superstes/a2f6c5d855857e1f10dcb51255fe08c6#haproxy-split)
 
 
+* **Tip:** You can increase the amount of available `track-sc`'s by setting the global setting [tune.stick-counters](https://docs.haproxy.org/2.8/configuration.html#3.2-tune.stick-counters). This can be useful in environments with complex rate-limit setups.
+
 
 ### GeoIP
 
