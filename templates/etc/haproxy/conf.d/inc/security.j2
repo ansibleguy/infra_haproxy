@@ -52,6 +52,7 @@
     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.bad_crawlers.sub | ensure_list | join(' ') }} }
 {%     endif %}
 {%   endif %}
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m sub -i {{ HAPROXY_WAF.user_agents.search_engines.sub | ensure_list | join(' ') }} }
     ## unusual if action has no referrer; could produce false-positives in some special cases
     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ method GET HEAD } !{ req.hdr(Referer) -m found }
     ## browsers set these ones usually

@@ -27,9 +27,12 @@ defaults_waf:
         # automation tools
         - 'headless'
         - 'cypress'
+        - 'Nessus'
+        - 'MechanicalSoup'
         # golang
         - 'go-http-client'
         - 'zgrab'
+        - 'grpc-go'
         # python
         - 'python'
         - 'httpx'
@@ -49,9 +52,16 @@ defaults_waf:
         - 'perl'
         - 'axios'  # JS
         - 'ruby'
+        - 'okhttp'
+        - 'Nutch'
+        - 'apify'
 
     bad_crawlers:
-      full: []
+      full:
+        - 'ALittle Client'
+        # bad spoofing
+        - 'Chrome'
+        - 'Linux Mozilla'
       sub:
         - 'spider'
         - 'test-bot'
@@ -62,17 +72,49 @@ defaults_waf:
         - 'nmap'
         - 'Metasploit'
         - 'ImageVacuum'
+        - 'ELinks'
         # python
         - 'scrapy'
         # golang
         - 'zgrab'
+
+    search_engines:
+      # NOTE: can be spoofed without verification
+      # google
+      #   https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers
+      #   https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot
+      # bing
+      #   https://www.bing.com/webmasters/help/which-crawlers-does-bing-use-8c184ec0
+      sub:
+        # google
+        - 'Googlebot'
+        - 'Storebot-Google'
+        - 'AdsBot-Google'
+        - 'FeedFetcher-Google'
+        - 'GoogleProducer'
+        - 'Mediapartners-Google'
+        # bing
+        - 'bingbot'
+        - 'adidxbot'
+        - 'MicrosoftPreview'
+        # yandex
+        - 'Yandexbot'
+        # baidu
+        - 'Baidu'
+        # apple
+        - 'Applebot'
+        # ahrefs (SEO)
+        - 'AhrefsBot'
+        # duck duck go
+        - 'DuckDuckBot'
+        - 'DuckDuckGo'
 
     any:
       - 'bot'
       - 'spider'
       - 'photon'
       - 'adsdefender'
-      - 'crawler'
+      - 'crawl'
       - 'robot'
       - 'image'
       - 'proxy'
@@ -84,6 +126,9 @@ defaults_waf:
       - 'office'
       - 'facebook'
       - 'feed'
+      - 'data'
+      - 'agent'
+      - 'inspect'
 
   script_kiddy:
     excludes: []  # user-defined excludes
