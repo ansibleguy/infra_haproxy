@@ -21,7 +21,8 @@ defaults_waf:
         # cli tools
         - 'curl'
         - 'wget'
-        - 'Apache-HttpClient'
+        - 'Apache'
+        - 'OpenSSL'
         - 'nmap'
         - 'Metasploit'
         # automation tools
@@ -33,6 +34,7 @@ defaults_waf:
         - 'go-http-client'
         - 'zgrab'
         - 'grpc-go'
+        - 'colly'
         # python
         - 'python'
         - 'httpx'
@@ -73,6 +75,8 @@ defaults_waf:
         - 'Metasploit'
         - 'ImageVacuum'
         - 'ELinks'
+        - 'Mozilla/3.0'
+        - 'Mozilla/4.0'
         # python
         - 'scrapy'
         # golang
@@ -108,6 +112,8 @@ defaults_waf:
         # duck duck go
         - 'DuckDuckBot'
         - 'DuckDuckGo'
+        # yahoo
+        - 'Yahoo'
 
     any:
       - 'bot'
