@@ -147,7 +147,6 @@ defaults_waf:
       - '/pwd/'
       - '/shaAdmin/'
       - '/typo3/'
-      - '/admin/'
       - '/dbadmin/'
       - '/db/'
       - '/solr/'
@@ -242,8 +241,6 @@ defaults_waf:
       - '.bak'
       - '.yml'
       - '.yaml'
-      - '/credentials'
-      - '/config'
 
     path_sub:
       - '/../'
