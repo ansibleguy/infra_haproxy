@@ -10,6 +10,7 @@ HAPROXY_HC:
   path:
     config: '/etc/haproxy/conf.d'
     map: '/etc/haproxy/map'
+    lst: '/etc/haproxy/lst'
     lua: '/etc/haproxy/lua'
     geoip_bin: '/usr/local/bin/geoip-lookup'
     geoip_bin_src: "geoip-lookup-linux-{{ cpu_arch }}-CGO0"
@@ -26,6 +27,17 @@ HAPROXY_HC:
     acme_certs_raw: '/etc/ssl/haproxy_acme/certs_raw'
     acme_challenges: '/var/www/haproxy_acme'
     acme_config: '/etc/dehydrated'
+
+  file:
+    lst:
+      script_kiddy_beg: 'waf-script-kiddy-path-beg.lst'
+      script_kiddy_end: 'waf-script-kiddy-path-end.lst'
+      script_kiddy_sub: 'waf-script-kiddy-path-sub.lst'
+      crawler_full: 'waf-crawler-ua-full.lst'
+      crawler_sub: 'waf-crawler-ua-sub.lst'
+      bot_sub: 'waf-bot-ua-sub.lst'
+      bad_bot_sub: 'waf-badbot-ua-sub.lst'
+      bad_bot_full: 'waf-badbot-ua-full.lst'
 
   user: 'haproxy'
   group: 'haproxy'

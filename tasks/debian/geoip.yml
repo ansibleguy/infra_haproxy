@@ -15,6 +15,7 @@
     mode: 0750
   loop:
     - "{{ HAPROXY_HC.path.map }}"
+    - "{{ HAPROXY_HC.path.lst }}"
     - "{{ HAPROXY_HC.path.lua }}"
     - '/tmp/haproxy'
 

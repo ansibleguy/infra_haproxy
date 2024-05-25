@@ -141,7 +141,6 @@ defaults_waf:
 
     path_beg:
       - '/cgi-bin/'
-      - '/icons/'
       - '/manager/'
       - '/php'
       - '/program/'
@@ -159,13 +158,48 @@ defaults_waf:
       - '/xmlrpc'
       - '/%'
       - '/.'
+      - '//'
       - '/securityRealm/'
       - '/magmi/'
-      - '/menu/'
-      - '/etc/'
       - '/HNAP1'
+      - '/vendor/'
+      - '/login.action'
+      - 'google.com:443'  # test CONNECT method
+      - '/actuator/'
+      - '/telescope/requests'
+      - '/geoserver/'
+      # information gathering
+      - '/server-status'
+      - '/FPURL.xml'
+      - '/.vscode/'
+      - '/.idea/'
+      - '/config.json'
+      # data extraction
+      - '/backup'
+      - '/old'
+      - '/new'
+      - '/home'
+      - '/main'
+      - '/www/'
+      - '/etc/'
+      - '/config/aws.yml'
+      - '/aws.yml'
+      - '/aws-secret.yaml'
+      - '/.aws/'
+      # MS Exchange
+      - '/ecp/'
+      - '/ews/'
+      - '/autodiscover/'
+      # Wordpress
+      - '/wp'
+      - '/wordpress'
 
     path_end:
+      - 'login'
+      - 'login.jsp'
+      - 'logon.htm'
+      - 'logon.html'
+      - 'logincheck'
       # scripts etc
       - '.php'
       - '.asp'
@@ -180,8 +214,13 @@ defaults_waf:
       - '.cs'
       - '.application'
       - '.exe'
+      - '.cfm'
+      - '.pl'
+      - '.shtml'
+      - '.jsp'
+      - '.jsa'
+      - '.mwsl'
       # information gathering
-      - '.env'
       - '.git/config'
       - '.git/HEAD'
       - '.git/index'
@@ -189,6 +228,7 @@ defaults_waf:
       - '.aws/config'
       - '.config'
       - '.settings'
+      - '.properties'
       # data extraction
       - '.zip'
       - '.tar'
@@ -200,6 +240,28 @@ defaults_waf:
       - '.sql'
       - '.sqlite3'
       - '.bak'
+      - '.yml'
+      - '.yaml'
+      - '/credentials'
+      - '/config'
 
     path_sub:
       - '/../'
+      - '/.%2e/'
+      - '/%%32%65%%32%65/'
+      - '/.env'
+      - 'eval'
+      - 'shell'
+      - '/.git/'
+      - '/;'
+      - '/bin/'
+      - 'phpinfo'
+      - '/debug'
+      - '/admin/'
+
+  # todo: query/body
+  #  * filter hex/hashes
+  #    also in this format: 'C%97%85%EC%86%8C%F0%9F%90%89%EC%97'
+  #  * curl/wget/chmod/chown
+  #  * filter sqli
+  #    AAA%20or%201=0%20&username=admin&password=shagenda--%20-

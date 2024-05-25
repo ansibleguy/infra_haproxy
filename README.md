@@ -340,6 +340,9 @@ ansible-vault encrypt_string
 
     * Pass the flag to your application to show a pretty error: `http-request add-header X-Bot %[var(txn.bot)]`
 
+
+* **Note**: If you want to use `security.block_script_kiddies` make sure you check out the block-list in the [defaults](https://github.com/ansibleguy/infra_haproxy/blob/latest/defaults/main/2_waf.yml) and add excludes as needed.
+
 ### TCP
 
 * **Info**: If you want to capture data dynamically, you can use `tcp-request content capture`.

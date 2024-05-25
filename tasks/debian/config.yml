@@ -1,5 +1,23 @@
 ---
 
+- name: HAProxy | Config | WAF Lists
+  ansible.builtin.template:
+    src: "templates/etc/haproxy/lst/{{ item }}.j2"
+    dest: "{{ HAPROXY_HC.path.lst }}/{{ item }}"
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0640
+  notify: HAProxy-reload
+  loop:
+    - '{{ HAPROXY_HC.file.lst.script_kiddy_beg }}'
+    - '{{ HAPROXY_HC.file.lst.script_kiddy_end }}'
+    - "{{ HAPROXY_HC.file.lst.script_kiddy_sub }}"
+    - "{{ HAPROXY_HC.file.lst.crawler_full }}"
+    - "{{ HAPROXY_HC.file.lst.crawler_sub }}"
+    - "{{ HAPROXY_HC.file.lst.bot_sub }}"
+    - "{{ HAPROXY_HC.file.lst.bad_bot_sub }}"
+    - "{{ HAPROXY_HC.file.lst.bad_bot_full }}"
+
 - name: HAProxy | Config | Globals/Defaults
   ansible.builtin.template:
     src: 'templates/etc/haproxy/haproxy.cfg.j2'
