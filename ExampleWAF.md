@@ -24,6 +24,7 @@ haproxy:
         # deny_dangerous_methods: true
         block_script_bots: true
         block_bad_crawler_bots: true
+        flag_bots: true
         block_script_kiddies: true
 
       routes:
@@ -102,16 +103,34 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     mode http
 >     bind [::]:80 v4v6
 > 
+>  frontend fe_web
+>     mode http
+>     bind [::]:80 v4v6
+> 
 >     http-request deny status 405 default-errorfiles if !{ method HEAD GET POST }
 > 
 >     # block well-known script-bots
->     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m sub -i curl wget Apache-HttpClient nmap Metasploit headless cypress go-http-client zgrab python httpx httpcore aiohttp httputil urllib GuzzleHttp phpcrawl Zend_Http_Client Wordpress Symfony-HttpClient cpp-httplib java perl axios ruby }
+>     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m sub -i -f /etc/haproxy/lst/waf-badbot-ua-sub.lst }
 >     # block well-known bad-crawler-bots
->     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m sub -i spider test-bot tiny-bot fidget-spinner-bot download scrapy }
+>     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m str -i -f /etc/haproxy/lst/waf-crawler-ua-full.lst }
+>     http-request deny status 425 default-errorfiles if { req.fhdr(User-Agent) -m sub -i -f /etc/haproxy/lst/waf-crawler-ua-sub.lst }
 >     # block script-kiddy requests
->     http-request deny status 425 default-errorfiles if { path_beg -i /cgi-bin/ /icons/ /manager/ /php /program/ /pwd/ /shaAdmin/ /typo3/ /admin/ /dbadmin/ /db/ /solr/ /weaver/ /joomla/ /App/ /webdav/ /xmlrpc /% /. /securityRealm/ /magmi/ /menu/ /etc/ /HNAP1 }
->     http-request deny status 425 default-errorfiles if { path_end -i .php .asp .aspx .esp .lua .rsp .ashx .dll .bin .cgi .cs .application .exe .env .git/config .git/HEAD .git/index .DS_Store .aws/config .config .settings .tar .tgz .gz .bz2 .rar .7z .sql .sqlite3 .bak }
->     http-request deny status 425 default-errorfiles if { path_sub -i /../ }
+>     http-request deny status 425 default-errorfiles if { path -m beg -i -f /etc/haproxy/lst/waf-script-kiddy-path-beg.lst }
+>     http-request deny status 425 default-errorfiles if { path -m end -i -f /etc/haproxy/lst/waf-script-kiddy-path-end.lst }
+>     http-request deny status 425 default-errorfiles if { path -m sub -i -f /etc/haproxy/lst/waf-script-kiddy-path-sub.lst }
+>     # FLAG BOTS
+>     ## flag bots by common user-agent substrings
+>     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } { req.fhdr(User-Agent) -m sub -i -f /etc/haproxy/lst/waf-bot-ua-sub.lst }
+> 
+>     ## unusual if action has no referrer; could produce false-positives in some special cases
+>     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ method GET HEAD } !{ req.hdr(Referer) -m found }
+>     ## browsers set these ones usually
+>     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ req.hdr(Accept-Language) -m found }
+>     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ req.fhdr(User-Agent) -m found }
+> 
+>     http-request set-var(txn.bot) int(0) if !{ var(txn.bot) -m found }
+>     http-request capture var(txn.bot) len 1
+> 
 >     # Security headers
 >     http-response set-header Strict-Transport-Security "max-age=16000000; includeSubDomains; preload;"
 >     http-response set-header X-Frame-Options "DENY"
@@ -119,19 +138,15 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     http-response set-header X-Permitted-Cross-Domain-Policies "none"
 >     http-response set-header X-XSS-Protection "1; mode=block"
 >     # SSL fingerprint
->     http-request set-var(txn.fp_ssl_p1) ssl_fc_cipherlist_bin(1),be2dec(-,2)
->     http-request set-var(txn.fp_ssl_p2) ssl_fc_extlist_bin(1),be2dec(-,2)
->     http-request set-var(txn.fp_ssl_p3) ssl_fc_eclist_bin(1),be2dec(-,2)
->     http-request set-var(txn.fp_ssl_p4) ssl_fc_ecformats_bin,be2dec(-,1)
->     http-request set-var(txn.fingerprint_ssl_raw) "ssl_fc_protocol_hello_id,concat(',',txn.fp_ssl_p1),concat(',',txn.fp_ssl_p2),concat(',',txn.fp_ssl_p3),concat(',',txn.fp_ssl_p4)"
->     http-request set-var(txn.fingerprint_ssl) var(txn.fingerprint_ssl_raw),digest(md5),hex,lower
+>     http-request set-header X-FINGERPRINT-JA3-RAW %[ssl_fc_protocol_hello_id],%[ssl_fc_cipherlist_bin(1),be2dec(-,2)],%[ssl_fc_extlist_bin(1),be2dec(-,2)],%[ssl_fc_eclist_bin(1),be2dec(-,2)],%[ssl_fc_ecformats_bin,be2dec(-,1)]
+>     http-request set-var(txn.fingerprint_ssl) req.fhdr(X-FINGERPRINT-JA3-RAW),digest(md5),hex,lower
 >     http-request capture var(txn.fingerprint_ssl) len 32
 > 
 >     http-request capture req.fhdr(User-Agent) len 200
 > 
 >     # BACKEND be_test
->     acl be_test_domains req.hdr(host) -m str -i app.test.ansibleguy.net
->     use_backend be_test if be_test_domains
+>     acl be_test_filter_domains req.hdr(host) -m str -i app.test.ansibleguy.net
+>     use_backend be_test if be_test_filter_domains
 > 
 >     default_backend be_fallback
 

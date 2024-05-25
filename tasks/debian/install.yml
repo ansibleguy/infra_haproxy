@@ -52,13 +52,19 @@
     - haproxy_pkg.changed
     - no_prompts | bool or haproxy_pkg_prompt.user_input | bool
 
-- name: HAProxy | Install | Create config directory
+- name: HAProxy | Install | Create directories
   ansible.builtin.file:
-    path: "{{ HAPROXY_HC.path.config }}"
+    path: "{{ item }}"
     state: directory
     owner: 'root'
     group: 'haproxy'
     mode: 0750
+  loop:
+    - "{{ HAPROXY_HC.path.config }}"
+    - "{{ HAPROXY_HC.path.map }}"
+    - "{{ HAPROXY_HC.path.lst }}"
+    - "{{ HAPROXY_HC.path.lua }}"
+    - '/tmp/haproxy'
 
 - name: HAProxy | Install | Create service-override directory
   ansible.builtin.file:

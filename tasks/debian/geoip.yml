@@ -6,19 +6,6 @@
     shell: '/usr/sbin/nologin'
     comment: 'HAProxy GeoIP Lookup Serviceuser'
 
-- name: HAProxy | GeoIP | Create map & lua directory
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: 'root'
-    group: 'haproxy'
-    mode: 0750
-  loop:
-    - "{{ HAPROXY_HC.path.map }}"
-    - "{{ HAPROXY_HC.path.lst }}"
-    - "{{ HAPROXY_HC.path.lua }}"
-    - '/tmp/haproxy'
-
 - name: HAProxy | GeoIP | Touch map files
   ansible.builtin.file:
     path: "{{ item }}"
