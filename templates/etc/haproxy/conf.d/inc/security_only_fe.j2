@@ -6,7 +6,6 @@
 {% endif %}
 {% if cnf.security.fingerprint_ssl | bool %}
     # SSL fingerprint
-    http-request set-header X-FINGERPRINT-JA3-RAW %[ssl_fc_protocol_hello_id],%[ssl_fc_cipherlist_bin(1),be2dec(-,2)],%[ssl_fc_extlist_bin(1),be2dec(-,2)],%[ssl_fc_eclist_bin(1),be2dec(-,2)],%[ssl_fc_ecformats_bin,be2dec(-,1)]
-    http-request set-var(txn.fingerprint_ssl) req.fhdr(X-FINGERPRINT-JA3-RAW),digest(md5),hex,lower
+    http-request lua.fingerprint_ja3n
     http-request capture var(txn.fingerprint_ssl) len 32
 {% endif %}

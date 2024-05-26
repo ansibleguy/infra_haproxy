@@ -334,9 +334,9 @@ ansible-vault encrypt_string
 
     Examples:
 
-    * Lower rate-limit for bots: `http-request deny deny_status 429 if { var(txn.bot) -m int 1 } { sc_http_req_rate(0) gt 50 }`
+    * Lower rate-limit for bots: `http-request deny deny_status 429 if !{ var(txn.bot) -m int 0 } { sc_http_req_rate(0) gt 50 }`
 
-    * Hard deny bots to register accounts: `http-request deny deny_status 400 if { var(txn.bot) -m int 1 } { method POST } { path_sub -m str -i /register/ }`
+    * Hard deny bots to register accounts: `http-request deny deny_status 400 if !{ var(txn.bot) -m int 0 } { method POST } { path_sub -m str -i /register/ }`
 
     * Pass the flag to your application to show a pretty error: `http-request add-header X-Bot %[var(txn.bot)]`
 

@@ -96,3 +96,11 @@
   ansible.builtin.systemd:
     name: 'haproxy.service'
     enabled: true
+
+- name: HAProxy | Install | Add LUA SSL-Fingerprint module
+  ansible.builtin.template:
+    src: "templates{{ HAPROXY_HC.path.lua }}/ja3n.lua.j2"
+    dest: "{{ HAPROXY_HC.path.lua }}/ja3n.lua"
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750

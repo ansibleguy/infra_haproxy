@@ -135,6 +135,7 @@ defaults_waf:
       - 'data'
       - 'agent'
       - 'inspect'
+      - 'github-camo'
 
   script_kiddy:
     excludes: []  # user-defined excludes
@@ -194,13 +195,14 @@ defaults_waf:
       - '/wordpress'
 
     path_end:
-      - 'login'
       - 'login.jsp'
       - 'logon.htm'
       - 'logon.html'
       - 'logincheck'
       # scripts etc
       - '.php'
+      - '.php7'
+      - '.php8'
       - '.asp'
       - '.aspx'
       - '.esp'

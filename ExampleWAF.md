@@ -4,6 +4,8 @@ There are still some basic WAF features to be implemented.
 
 NOTE: The feature-set this role provides does not come lose to the one [available in HAProxy Enterprise by default](https://www.haproxy.com/solutions/web-application-firewall).
 
+[Fingerprinting Docs](https://github.com/ansibleguy/infra_haproxy/blob/latest/Fingerprinting.md) for detailed information on how you might want to track clients.
+
 ## Config
 
 ```yaml
@@ -138,8 +140,7 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     http-response set-header X-Permitted-Cross-Domain-Policies "none"
 >     http-response set-header X-XSS-Protection "1; mode=block"
 >     # SSL fingerprint
->     http-request set-header X-FINGERPRINT-JA3-RAW %[ssl_fc_protocol_hello_id],%[ssl_fc_cipherlist_bin(1),be2dec(-,2)],%[ssl_fc_extlist_bin(1),be2dec(-,2)],%[ssl_fc_eclist_bin(1),be2dec(-,2)],%[ssl_fc_ecformats_bin,be2dec(-,1)]
->     http-request set-var(txn.fingerprint_ssl) req.fhdr(X-FINGERPRINT-JA3-RAW),digest(md5),hex,lower
+>     http-request lua.fingerprint_ja3n
 >     http-request capture var(txn.fingerprint_ssl) len 32
 > 
 >     http-request capture req.fhdr(User-Agent) len 200

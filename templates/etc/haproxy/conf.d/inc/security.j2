@@ -5,30 +5,6 @@
     http-request deny status 405 default-errorfiles if { method TRACE CONNECT }
 {% endif %}
 
-{% if cnf.security.block_script_bots | bool %}
-    # block well-known script-bots
-{%   if HAPROXY_WAF.user_agents.script.full | length > 0 %}
-  http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m str -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.bad_bot_full }} }
-{%   endif %}
-{%   if HAPROXY_WAF.user_agents.script.sub | length > 0 %}
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.bad_bot_sub }} }
-{%   endif %}
-{% endif %}
-{% if cnf.security.block_bad_crawler_bots | bool %}
-    # block well-known bad-crawler-bots
-{%   if HAPROXY_WAF.user_agents.bad_crawlers.full | length > 0 %}
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m str -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.crawler_full }} }
-{%   endif %}
-{%   if HAPROXY_WAF.user_agents.bad_crawlers.sub | length > 0 %}
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.crawler_sub }} }
-{%   endif %}
-{% endif %}
-{% if cnf.security.block_script_kiddies | bool %}
-    # block script-kiddy requests
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m beg -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_beg }} }
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m end -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_end }} }
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_sub }} }
-{% endif %}
 {% if cnf.security.flag_bots | bool %}
     # FLAG BOTS
     ## flag bots by common user-agent substrings
@@ -65,4 +41,28 @@
     http-request set-var(txn.bot) int(0) if !{ var(txn.bot) -m found }
     http-request capture var(txn.bot) len 1
 
+{% endif %}
+{% if cnf.security.block_script_bots | bool %}
+    # block well-known script-bots
+{%   if HAPROXY_WAF.user_agents.script.full | length > 0 %}
+  http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m str -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.bad_bot_full }} }
+{%   endif %}
+{%   if HAPROXY_WAF.user_agents.script.sub | length > 0 %}
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.bad_bot_sub }} }
+{%   endif %}
+{% endif %}
+{% if cnf.security.block_bad_crawler_bots | bool %}
+    # block well-known bad-crawler-bots
+{%   if HAPROXY_WAF.user_agents.bad_crawlers.full | length > 0 %}
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m str -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.crawler_full }} }
+{%   endif %}
+{%   if HAPROXY_WAF.user_agents.bad_crawlers.sub | length > 0 %}
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { req.fhdr(User-Agent) -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.crawler_sub }} }
+{%   endif %}
+{% endif %}
+{% if cnf.security.block_script_kiddies | bool %}
+    # block script-kiddy requests
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m beg -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_beg }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m end -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_end }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_sub }} }
 {% endif %}
