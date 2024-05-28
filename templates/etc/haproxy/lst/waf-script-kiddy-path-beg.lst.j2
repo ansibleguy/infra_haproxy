@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 {% for path in HAPROXY_WAF.script_kiddy.path_beg %}
-{%   if path not in HAPROXY_WAF.script_kiddy.excludes %}
+{%   if path not in HAPROXY_WAF.script_kiddy.disable %}
 {{ path | lower }}
 {%   endif %}
 {% endfor %}

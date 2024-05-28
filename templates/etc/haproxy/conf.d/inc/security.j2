@@ -62,7 +62,8 @@
 {% endif %}
 {% if cnf.security.block_script_kiddies | bool %}
     # block script-kiddy requests
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m beg -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_beg }} }
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m end -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_end }} }
-    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if { path -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_sub }} }
+    acl script_kiddy_excluded path -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_exc }}
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if !script_kiddy_excluded { path -m beg -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_beg }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if !script_kiddy_excluded { path -m end -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_end }} }
+    http-request deny status {{ HAPROXY_WAF.block_code }} {{ BLOCK_ERRORFILE }} if !script_kiddy_excluded { path -m sub -i -f {{ HAPROXY_HC.path.lst }}/{{ HAPROXY_HC.file.lst.script_kiddy_sub }} }
 {% endif %}

@@ -3,7 +3,7 @@
 defaults_waf:
   # NOTE: the block-code is very limited if you want to use an errorfile!
   #   see: https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/#http-request%20return
-  block_code: 425
+  block_code: 400
   block_errorfile: true
 
   # todo: search parameters and body of http requests for SQLi/Path-Traversal/XSS/...
@@ -138,7 +138,10 @@ defaults_waf:
       - 'github-camo'
 
   script_kiddy:
-    excludes: []  # user-defined excludes
+    disable: []  # matches that should not be blocked (user-defined); checked at templating stage
+
+    exclude:  # sub-string safelist to be excluded (user-defined); checked at runtime
+      - '.well-known/acme-challenge'
 
     path_beg:
       - '/cgi-bin/'

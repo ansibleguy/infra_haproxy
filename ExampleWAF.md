@@ -12,7 +12,9 @@ NOTE: The feature-set this role provides does not come lose to the one [availabl
 haproxy:
   waf:
     script_kiddy:
-      excludes: ['.zip']  # exclude specific entries from the script-kiddy filters
+      disable: ['.zip']  # disable specific entries from the script-kiddy filters
+      exclude:  # exclude by path sub-string (at runtime)
+        - '.well_known/'
 
   frontends:
     fe_web:

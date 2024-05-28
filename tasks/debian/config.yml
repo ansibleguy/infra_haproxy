@@ -12,6 +12,7 @@
     - '{{ HAPROXY_HC.file.lst.script_kiddy_beg }}'
     - '{{ HAPROXY_HC.file.lst.script_kiddy_end }}'
     - "{{ HAPROXY_HC.file.lst.script_kiddy_sub }}"
+    - "{{ HAPROXY_HC.file.lst.script_kiddy_exc }}"
     - "{{ HAPROXY_HC.file.lst.crawler_full }}"
     - "{{ HAPROXY_HC.file.lst.crawler_sub }}"
     - "{{ HAPROXY_HC.file.lst.bot_sub }}"

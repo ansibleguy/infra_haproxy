@@ -33,6 +33,7 @@ HAPROXY_HC:
       script_kiddy_beg: 'waf-script-kiddy-path-beg.lst'
       script_kiddy_end: 'waf-script-kiddy-path-end.lst'
       script_kiddy_sub: 'waf-script-kiddy-path-sub.lst'
+      script_kiddy_exc: 'waf-script-kiddy-excludes.lst'
       crawler_full: 'waf-crawler-ua-full.lst'
       crawler_sub: 'waf-crawler-ua-sub.lst'
       bot_sub: 'waf-bot-ua-sub.lst'

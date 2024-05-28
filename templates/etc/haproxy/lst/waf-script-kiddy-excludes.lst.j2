@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+
+{% for path in HAPROXY_WAF.script_kiddy.exclude %}
+{{ path | lower }}
+{% endfor %}
+
