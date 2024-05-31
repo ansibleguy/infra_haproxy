@@ -136,11 +136,11 @@ root@test-ag-haproxy-waf:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     http-request capture var(txn.bot) len 1
 > 
 >     # Security headers
->     http-response set-header Strict-Transport-Security "max-age=16000000; includeSubDomains; preload;"
->     http-response set-header X-Frame-Options "DENY"
->     http-response set-header X-Content-Type-Options "nosniff"
->     http-response set-header X-Permitted-Cross-Domain-Policies "none"
->     http-response set-header X-XSS-Protection "1; mode=block"
+>     http-response add-header Strict-Transport-Security "max-age=16000000; includeSubDomains; preload;" if !{ res.hdr(Strict-Transport-Security) -m found }
+>     http-response add-header X-Frame-Options "SAMEORIGIN" if !{ res.hdr(X-Frame-Options) -m found }
+>     http-response add-header X-Content-Type-Options "nosniff" if !{ res.hdr(X-Content-Type-Options) -m found }
+>     http-response add-header X-Permitted-Cross-Domain-Policies "none" if !{ res.hdr(X-Permitted-Cross-Domain-Policies) -m found }
+>     http-response add-header X-XSS-Protection "1; mode=block" if !{ res.hdr(X-XSS-Protection) -m found }
 >     # SSL fingerprint
 >     http-request lua.fingerprint_ja3n
 >     http-request capture var(txn.fingerprint_ssl) len 32

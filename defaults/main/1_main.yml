@@ -101,7 +101,7 @@ defaults_frontend:
 
     flag_bots: false
     flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists
-    # prepend 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
+    # is auto-prepended: 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
 
   log:
     user_agent: true
@@ -159,7 +159,7 @@ defaults_backend:
 
     flag_bots: false
     flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists
-    # prepend 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
+    # is auto-prepended: 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
 
   # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
   #   more complex ones should be implemented by supplying the raw config-lines
@@ -169,9 +169,10 @@ defaults_backend:
   check_uri:
   check_expect:
 
+# NOTE: if your application adds these response headers - they will not be overwritten
 defaults_security_headers:
   Strict-Transport-Security: 'max-age=16000000; includeSubDomains; preload;'
-  X-Frame-Options: 'DENY'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+  X-Frame-Options: 'SAMEORIGIN'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
   X-Content-Type-Options: 'nosniff'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
   X-Permitted-Cross-Domain-Policies: 'none'
   X-XSS-Protection: '1; mode=block'

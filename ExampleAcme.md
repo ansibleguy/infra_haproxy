@@ -103,11 +103,11 @@ root@test-ag-haproxy-acme:/# cat /etc/haproxy/conf.d/frontend.cfg
 >     http-request deny status 405 default-errorfiles if { method TRACE CONNECT }
 >
 >     # Security headers
->     http-response set-header Strict-Transport-Security "max-age=16000000; includeSubDomains; preload;"
->     http-response set-header X-Frame-Options "DENY"
->     http-response set-header X-Content-Type-Options "nosniff"
->     http-response set-header X-Permitted-Cross-Domain-Policies "none"
->     http-response set-header X-XSS-Protection "1; mode=block"
+>     http-response add-header Strict-Transport-Security "max-age=16000000; includeSubDomains; preload;" if !{ res.hdr(Strict-Transport-Security) -m found }
+>     http-response add-header X-Frame-Options "SAMEORIGIN" if !{ res.hdr(X-Frame-Options) -m found }
+>     http-response add-header X-Content-Type-Options "nosniff" if !{ res.hdr(X-Content-Type-Options) -m found }
+>     http-response add-header X-Permitted-Cross-Domain-Policies "none" if !{ res.hdr(X-Permitted-Cross-Domain-Policies) -m found }
+>     http-response add-header X-XSS-Protection "1; mode=block" if !{ res.hdr(X-XSS-Protection) -m found }
 >
 >     http-request capture req.fhdr(User-Agent) len 200
 >

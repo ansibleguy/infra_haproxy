@@ -35,7 +35,7 @@
     http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } !{ req.fhdr(User-Agent) -m found }
 
 {%   for line in cnf.security.flag_bots_lines %}
-    {{ line }}
+    http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } {{ line }}
 {%   endfor %}
 
     http-request set-var(txn.bot) int(0) if !{ var(txn.bot) -m found }
