@@ -39,6 +39,7 @@ defaults_haproxy:
     lookup_port: 8406
     provider: 'ipinfo'
     token:
+    # todo: log geoip drops in tcp-mode
 
   global:
     log:
