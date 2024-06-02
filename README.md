@@ -41,7 +41,6 @@ ansible-galaxy install ansibleguy.infra_haproxy --roles-path ./roles
 ### Roadmap
 
 * Security
-  * Basic bot flagging
   * Basic rate limit (GET/HEAD and POST/PUT/DELETE separated)
   * Generic client fingerprint
 * 'Interface' for Dict to Map-File translation/creation
