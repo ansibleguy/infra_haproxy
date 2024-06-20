@@ -1,7 +1,7 @@
 {% if cnf.security.headers | bool %}
     # Security headers
 {%   for header, value in defaults_security_headers.items() %}
-    http-after-response add-header {{ header }} "{{ value }}" !{ res.hdr({{ header }}) -m found }
+    http-after-response add-header {{ header }} "{{ value }}" if !{ res.hdr({{ header }}) -m found }
 {%   endfor %}
 {% endif %}
 {% if cnf.security.fingerprint_ssl | bool %}
