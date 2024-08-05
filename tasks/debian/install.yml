@@ -10,9 +10,10 @@
   ansible.builtin.shell: |
     set -o pipefail
     curl https://haproxy.debian.net/bernat.debian.org.gpg |
-    gpg --dearmor > /usr/share/keyrings/haproxy.debian.net.gpg
+    gpg --dearmor -o /usr/share/keyrings/haproxy.debian.net.gpg
   args:
     executable: '/bin/bash'
+    creates: '/usr/share/keyrings/haproxy.debian.net.gpg'
   changed_when: false
   tags: [skip_ansible_lint]  # lazy - open to PRs
 
