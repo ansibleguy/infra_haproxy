@@ -35,6 +35,7 @@
     owner: 'root'
     group: 'haproxy'
     mode: 0750
+  tags: lua
 
 - name: HAProxy | GeoIP | Checking if Lookup-Service Binary exists
   ansible.builtin.stat:

@@ -364,6 +364,7 @@ There are also some useful **tags** available:
 * config => only update config and ssl certs
 * ssl or acme
 * geoip
+* lua
 
 To debug errors - you can set the 'debug' variable at runtime:
 ```bash

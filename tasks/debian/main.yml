@@ -2,7 +2,7 @@
 
 - name: HAProxy | Install
   ansible.builtin.include_tasks: debian/install.yml
-  tags: [install]
+  tags: [install, lua]
   args:
     apply:
       tags: [install]
@@ -18,7 +18,7 @@
 - name: HAProxy | GeoIP
   ansible.builtin.include_tasks: debian/geoip.yml
   when: HAPROXY_CONFIG.geoip.enable | bool
-  tags: [geoip, config]
+  tags: [geoip, config, lua]
   args:
     apply:
       tags: [geoip]
