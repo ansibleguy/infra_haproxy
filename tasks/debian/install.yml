@@ -98,11 +98,22 @@
     name: 'haproxy.service'
     enabled: true
 
-- name: HAProxy | Install | Add LUA SSL-Fingerprint (JA3N) module
-  ansible.builtin.template:
-    src: "templates{{ HAPROXY_HC.path.lua }}/ja3n.lua.j2"
+- name: HAProxy | Install | Download SSL-Fingerprint plugin (JA3N)
+  ansible.builtin.get_url:
+    url: "{{ HAPROXY_HC.url.ja3n_script }}"
     dest: "{{ HAPROXY_HC.path.lua }}/ja3n.lua"
     owner: 'root'
     group: 'haproxy'
     mode: 0750
   tags: lua
+
+- name: HAProxy | Install | Download SSL-Fingerprint plugin (JA4)
+  ansible.builtin.get_url:
+    url: "{{ HAPROXY_HC.url.ja4_script }}"
+    dest: "{{ HAPROXY_HC.path.lua }}/ja4.lua"
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750
+  tags: lua
+
+# todo: opt-in for JA4-DB lookups + map update service (https://github.com/O-X-L/haproxy-ja4)

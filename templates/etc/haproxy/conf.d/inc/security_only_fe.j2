@@ -6,6 +6,11 @@
 {% endif %}
 {% if cnf.security.fingerprint_ssl | bool %}
     # SSL fingerprint
+{%   if cnf.security.fingerprint_ssl_type | lower == 'ja4' %}
+    http-request lua.fingerprint_ja4
+    http-request capture var(txn.fingerprint_ssl) len 36
+{%   else %}
     http-request lua.fingerprint_ja3n
     http-request capture var(txn.fingerprint_ssl) len 32
+{%   endif %}
 {% endif %}

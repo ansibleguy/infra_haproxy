@@ -50,6 +50,8 @@ HAPROXY_HC:
     geoip_maxmind_country: "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz"
     geoip_maxmind_asn: "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz"
     acme_script: "https://github.com/dehydrated-io/dehydrated/releases/download/v{{ version_dehydrated }}/dehydrated-{{ version_dehydrated }}.tar.gz"
+    ja3n_script: 'https://raw.githubusercontent.com/O-X-L/haproxy-ja3n/latest/ja3n.lua'
+    ja4_script: 'https://raw.githubusercontent.com/O-X-L/haproxy-ja4/latest/ja4.lua'
 
   valid_geoip_providers: ['ipinfo', 'maxmind']
   user_geoip: 'haproxy-geoip'

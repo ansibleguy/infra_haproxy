@@ -10,6 +10,7 @@ class FilterModule(object):
             "is_dict": self.is_dict,
             "safe_key": self.safe_key,
             "ssl_fingerprint_active": self.ssl_fingerprint_active,
+            "ssl_fingerprint_ja4": self.ssl_fingerprint_ja4,
             "build_route": self.build_route,
             "join_w_excludes": self.join_w_excludes,
         }
@@ -39,6 +40,18 @@ class FilterModule(object):
         for fe_cnf in frontends.values():
             try:
                 if fe_cnf['security']['fingerprint_ssl']:
+                    return True
+
+            except KeyError:
+                continue
+
+        return False
+
+    @staticmethod
+    def ssl_fingerprint_ja4(frontends: dict) -> bool:
+        for fe_cnf in frontends.values():
+            try:
+                if fe_cnf['security']['fingerprint_ssl_type'].lower() == 'ja4':
                     return True
 
             except KeyError:
