@@ -98,7 +98,7 @@
     name: 'haproxy.service'
     enabled: true
 
-- name: HAProxy | Install | Download SSL-Fingerprint plugin (JA3N)
+- name: HAProxy | Install | Download SSL-Fingerprint LUA-plugin (JA3N)
   ansible.builtin.get_url:
     url: "{{ HAPROXY_HC.url.ja3n_script }}"
     dest: "{{ HAPROXY_HC.path.lua }}/ja3n.lua"
@@ -107,10 +107,19 @@
     mode: 0750
   tags: lua
 
-- name: HAProxy | Install | Download SSL-Fingerprint plugin (JA4)
+- name: HAProxy | Install | Download SSL-Fingerprint LUA-plugin (JA4)
   ansible.builtin.get_url:
     url: "{{ HAPROXY_HC.url.ja4_script }}"
     dest: "{{ HAPROXY_HC.path.lua }}/ja4.lua"
+    owner: 'root'
+    group: 'haproxy'
+    mode: 0750
+  tags: lua
+
+- name: HAProxy | Install | Download SHA2 LUA-library (JA4 dependency)
+  ansible.builtin.get_url:
+    url: "{{ HAPROXY_HC.url.sha2_script }}"
+    dest: "{{ HAPROXY_HC.path.lua }}/sha2.lua"
     owner: 'root'
     group: 'haproxy'
     mode: 0750
