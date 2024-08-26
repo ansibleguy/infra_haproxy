@@ -52,7 +52,6 @@ HAPROXY_HC:
     acme_script: "https://github.com/dehydrated-io/dehydrated/releases/download/v{{ version_dehydrated }}/dehydrated-{{ version_dehydrated }}.tar.gz"
     ja3n_script: 'https://raw.githubusercontent.com/O-X-L/haproxy-ja3n/latest/ja3n.lua'
     ja4_script: 'https://raw.githubusercontent.com/O-X-L/haproxy-ja4/latest/ja4.lua'
-    sha2_script: 'https://raw.githubusercontent.com/Egor-Skriptunoff/pure_lua_SHA/master/sha2.lua'  # ja4 dependency
 
   valid_geoip_providers: ['ipinfo', 'maxmind']
   user_geoip: 'haproxy-geoip'

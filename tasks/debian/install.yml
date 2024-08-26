@@ -116,13 +116,4 @@
     mode: 0750
   tags: lua
 
-- name: HAProxy | Install | Download SHA2 LUA-library (JA4 dependency)
-  ansible.builtin.get_url:
-    url: "{{ HAPROXY_HC.url.sha2_script }}"
-    dest: "{{ HAPROXY_HC.path.lua }}/sha2.lua"
-    owner: 'root'
-    group: 'haproxy'
-    mode: 0750
-  tags: lua
-
 # todo: opt-in for JA4-DB lookups + map update service (https://github.com/O-X-L/haproxy-ja4)
