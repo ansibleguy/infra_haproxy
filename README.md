@@ -299,6 +299,8 @@ ansible-vault encrypt_string
 * **Tip:** You can increase the amount of available `track-sc`'s by setting the global setting [tune.stick-counters](https://docs.haproxy.org/2.8/configuration.html#3.2-tune.stick-counters). This can be useful in environments with complex rate-limit setups.
 
 
+* **Note:** You can define the `basic_auth.users` in the backend-section to enforce a password-prompt before accessing your application. OAuth-Proxy support will be added later on.
+
 ### GeoIP
 
 

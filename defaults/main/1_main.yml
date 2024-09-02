@@ -163,6 +163,10 @@ defaults_backend:
     flag_bots_lines: []  # additional checks you want to append; you could p.e. check if a cookie set by JS exists
     # is auto-prepended: 'http-request set-var(txn.bot) int(1) if !{ var(txn.bot) -m found } ' before your conditions
 
+  basic_auth:
+    users: {}
+    plaintext: true  # NOTE: currently we only support plaintext password in the config
+
   # for health-checks see: https://www.haproxy.com/blog/how-to-enable-health-checks-in-haproxy
   #   more complex ones should be implemented by supplying the raw config-lines
   check: true

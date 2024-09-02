@@ -3,6 +3,13 @@
 
 {% for name, cnf_user in HAPROXY_CONFIG.backends.items() %}
 {%   set cnf = defaults_backend | combine(cnf_user, recursive=true) %}
+{%   if cnf.basic_auth.plaintext | bool and cnf.basic_auth.users | length > 0 %}
+
+userlist basic_auth_{{ name }}
+{%     for user, pwd in cnf.basic_auth.users.items() %}
+  user {{ user }} insecure-password {{ pwd }}
+{%     endfor %}
+{%   endif %}
 
 backend {{ name }}
     mode {{ cnf.mode }}
@@ -26,6 +33,9 @@ backend {{ name }}
     cookie {{ cnf.sticky_http.cookie }} insert indirect nocache
 {%     endif %}
 {%     include "inc/security.j2" %}
+{%     if cnf.basic_auth.plaintext | bool and cnf.basic_auth.users | length > 0 %}
+    http-request auth unless { http_auth(basic_auth_{{ name }}) }
+{%     endif %}
 {%   endif %}
 {%   if cnf.mode == 'tcp' %}
 {%     if cnf.sticky | bool %}
