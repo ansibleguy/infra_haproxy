@@ -35,6 +35,10 @@ backend {{ name }}
 {%     include "inc/security.j2" %}
 {%     if cnf.basic_auth.plaintext | bool and cnf.basic_auth.users | length > 0 %}
     http-request auth unless { http_auth(basic_auth_{{ name }}) }
+    http-request del-header X-User
+    http-request del-header X-Auth
+    http-request del-header X-Auth-Type
+    http-request del-header Authorization
 {%     endif %}
 {%   endif %}
 {%   if cnf.mode == 'tcp' %}
