@@ -181,7 +181,6 @@ defaults_security_headers:
   X-Frame-Options: 'SAMEORIGIN'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
   X-Content-Type-Options: 'nosniff'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
   X-Permitted-Cross-Domain-Policies: 'none'
-  X-XSS-Protection: '1; mode=block'
 
 defaults_frontend_route:
   domains: []
