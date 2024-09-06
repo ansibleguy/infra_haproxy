@@ -177,10 +177,11 @@ defaults_backend:
 
 # NOTE: if your application adds these response headers - they will not be overwritten
 defaults_security_headers:
-  Strict-Transport-Security: 'max-age=16000000; includeSubDomains; preload;'
+  Strict-Transport-Security: 'max-age=31536000; includeSubdomains; preload'
   X-Frame-Options: 'SAMEORIGIN'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
   X-Content-Type-Options: 'nosniff'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
   X-Permitted-Cross-Domain-Policies: 'none'
+  Referrer-Policy: 'strict-origin-when-cross-origin'  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
 
 defaults_frontend_route:
   domains: []
