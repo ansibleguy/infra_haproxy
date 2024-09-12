@@ -7,7 +7,7 @@
 
 userlist basic_auth_{{ name }}
 {%     for user, pwd in cnf.basic_auth.users.items() %}
-  user {{ user }} insecure-password {{ pwd }}
+    user {{ user }} insecure-password {{ pwd }}
 {%     endfor %}
 {%   endif %}
 
