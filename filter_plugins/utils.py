@@ -89,6 +89,12 @@ class FilterModule(object):
             lines.append(f"acl {var_prefix}_not_ip src {' '.join(cls.ensure_list(be_cnf['filter_not_ip']))}")
             to_match.append(f'!{var_prefix}_not_ip')
 
+        if len(be_cnf['filter_acl']) > 0:
+            to_match.extend(cls.ensure_list(be_cnf['filter_acl']))
+
+        if len(be_cnf['filter_not_acl']) > 0:
+            to_match.extend([f'!{a}' for a in cls.ensure_list(be_cnf['filter_acl'])])
+
         if cls.is_truthy(fe_cnf['geoip']['enable']):
             if cls.is_truthy(fe_cnf['geoip']['country']):
                 if len(be_cnf['filter_country']) > 0:
@@ -121,7 +127,20 @@ class FilterModule(object):
                     to_match.append(f'!{var_prefix}_not_asn')
 
         if len(to_match) > 0:
-            lines.append(f"use_backend {be_name} if {' '.join(to_match)}")
+            if cls.is_truthy(be_cnf['filter_match_or']):
+                to_match_or = []
+                if len(be_cnf['domains']) == 0:
+                    to_match_or = to_match
+
+                else:
+                    d = to_match[0]
+                    for m in to_match[1:]:
+                        to_match_or.append(f'{d} {m}')
+
+                lines.append(f"use_backend {be_name} if {' || '.join(to_match_or)}")
+
+            else:
+                lines.append(f"use_backend {be_name} if {' '.join(to_match)}")
 
         else:
             lines.append(f"use_backend {be_name}")
