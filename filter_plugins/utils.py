@@ -126,23 +126,44 @@ class FilterModule(object):
                     )
                     to_match.append(f'!{var_prefix}_not_asn')
 
-        if len(to_match) > 0:
-            if cls.is_truthy(be_cnf['filter_match_or']):
-                to_match_or = []
-                if len(be_cnf['domains']) == 0:
-                    to_match_or = to_match
+        be_statics_name = None
+        statics_to_match = []
+        if 'statics' in be_cnf and 'locations' in be_cnf['statics'] \
+                and len(be_cnf['statics']['locations']) > 0 and str(be_cnf['statics']['backend']).strip() != '':
+            be_statics_name = be_cnf['statics']['backend']
+            statics_to_match = to_match.copy()
+
+            lines.append(
+                f"acl {var_prefix}_statics path "
+                f"-i -m beg {' '.join(cls.ensure_list(be_cnf['statics']['locations']))}"
+            )
+            to_match.append(f'!{var_prefix}_statics')
+            statics_to_match.append(f'{var_prefix}_statics')
+
+        for loop_be, loop_match in {
+            be_name: to_match,
+            be_statics_name: statics_to_match
+        }.items():
+            if loop_be is None:
+                continue
+
+            if len(loop_match) > 0:
+                if cls.is_truthy(be_cnf['filter_match_or']):
+                    loop_match_or = []
+                    if len(be_cnf['domains']) == 0:
+                        loop_match_or = loop_match
+
+                    else:
+                        d = loop_match[0]
+                        for m in loop_match[1:]:
+                            loop_match_or.append(f'{d} {m}')
+
+                    lines.append(f"use_backend {loop_be} if {' || '.join(loop_match_or)}")
 
                 else:
-                    d = to_match[0]
-                    for m in to_match[1:]:
-                        to_match_or.append(f'{d} {m}')
-
-                lines.append(f"use_backend {be_name} if {' || '.join(to_match_or)}")
+                    lines.append(f"use_backend {loop_be} if {' '.join(loop_match)}")
 
             else:
-                lines.append(f"use_backend {be_name} if {' '.join(to_match)}")
-
-        else:
-            lines.append(f"use_backend {be_name}")
+                lines.append(f"use_backend {loop_be}")
 
         return lines

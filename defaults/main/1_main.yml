@@ -196,3 +196,8 @@ defaults_frontend_route:
   filter_not_acl: []
 
   filter_match_or: false  # only one filter needs to match (pe: country or IP => [domain AND country] OR [domain AND ip])
+
+  # route statics-locations to other backend (to separate app services from those 'file-services')
+  statics:
+    locations: []
+    backend:
